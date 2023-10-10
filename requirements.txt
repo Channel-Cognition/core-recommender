@@ -1,0 +1,16 @@
+Django
+djangorestframework
+psycopg2
+drf-spectacular
+Pillow
+guardrails-ai
+pydantic
+typing
+openai
+rich
+python-decouple
+langchain
+chromadb
+tiktoken
+tvdb_v4_official
+pandas

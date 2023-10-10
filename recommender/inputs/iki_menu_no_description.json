@@ -1,0 +1,302 @@
+{
+  "menu": {
+    "appetizers": [
+      {
+        "name": "EDAMAME",
+        "price": "$5"
+      },
+      {
+        "name": "SEAWEED SALAD",
+        "price": "$5"
+      },
+      {
+        "name": "TAKOYAKI",
+        "price": "$6"
+      },
+      {
+        "name": "1 PC. EBI KATSU BAO",
+        "price": "$5"
+      },
+      {
+        "name": "CRISPY RICE TUNA",
+        "price": "$10"
+      },
+      {
+        "name": "PORK GYOZA",
+        "price": "$7"
+      },
+      {
+        "name": "1PC. PORK KAKUNI BAO",
+        "price": "$4"
+      },
+      {
+        "name": "SOFT SHELL CRAB BAO",
+        "price": "$10"
+      }
+    ],
+    "sashimi": [
+      {
+        "name": "TOMATO BURRATA",
+        "price": "$15"
+      },
+      {
+        "name": "SCALLOP CARPACCIO",
+        "price": "$18"
+      },
+      {
+        "name": "MAGURO WASABI",
+        "price": "$18"
+      },
+      {
+        "name": "SEA URCHIN SASHIMI",
+        "price": "$36"
+      },
+      {
+        "name": "SALMON BURRATA",
+        "price": "$15"
+      },
+      {
+        "name": "YELLOWTAIL CARPACCIO",
+        "price": "$18"
+      },
+      {
+        "name": "ASSORTED SASHIMI",
+        "price": "$38"
+      }
+    ],
+    "donburi": [
+      {
+        "name": "CHASHU DON",
+        "price": "$6"
+      },
+      {
+        "name": "SALMON IKURA DON",
+        "price": "$14"
+      },
+      {
+        "name": "KAISEN DON",
+        "price": "$28"
+      },
+      {
+        "name": "SPICY TUNA DON",
+        "price": "$9"
+      },
+      {
+        "name": "TORO UNI IKURA DON",
+        "price": "$26"
+      },
+      {
+        "name": "PREMIUM KAISEN DON",
+        "price": "$48"
+      }
+    ],
+    "sushi": [
+      {
+        "name": "PREMIUM IKI SUSHI",
+        "price": "$54"
+      },
+      {
+        "name": "2PCS. TUNA SUSHI",
+        "price": "$7"
+      },
+      {
+        "name": "2PCS. YELLOWTAIL SUSHI",
+        "price": "$7"
+      },
+      {
+        "name": "2PCS. HOKKAIDO SCALLOP SUSHI",
+        "price": "$7"
+      },
+      {
+        "name": "2PCS. SEA URCHIN SUSHI",
+        "price": "$18"
+      },
+      {
+        "name": "IKI SUSHI",
+        "price": "$28"
+      },
+      {
+        "name": "2PCS. A5 WAGYU SUSHI",
+        "price": "$18"
+      },
+      {
+        "name": "2PCS. SALMON SUSHI",
+        "price": "$7"
+      },
+      {
+        "name": "2PCS. TORO SUSHI",
+        "price": "$14"
+      },
+      {
+        "name": "2PCS. SEARED TORO SUSHI",
+        "price": "$15"
+      }
+    ],
+    "grabHandRoll": [
+      {
+        "name": "GRAB HAND ROLL (8 PIECES)",
+        "price": "$24"
+      },
+      {
+        "name": "SPICY TUNA GRAB HAND ROLL",
+        "price": "$7"
+      },
+      {
+        "name": "TORO GRAB HAND ROLL",
+        "price": "$14"
+      },
+      {
+        "name": "SCALLOP UNI GRAB HAND ROLL",
+        "price": "$14"
+      },
+      {
+        "name": "SEARED TORO GRAB HAND ROLL",
+        "price": "$14"
+      },
+      {
+        "name": "PREMIUM GRAB HAND ROLL (8 PIECES)",
+        "price": "$48"
+      },
+      {
+        "name": "BLUE CRAB GRAB HAND ROLL",
+        "price": "$8"
+      },
+      {
+        "name": "TORO UNI GRAB HAND ROLL",
+        "price": "$20"
+      },
+      {
+        "name": "SALMON TRUFFLE GRAB HAND ROLL",
+        "price": "$9"
+      },
+      {
+        "name": "A5 WAGYU + UNI GRAB HAND ROLL",
+        "price": "$22"
+      }
+    ],
+    "cutRoll": [
+      {
+        "name": "6PCS. CUCUMBER CUT ROLL",
+        "price": "$5"
+      },
+      {
+        "name": "6PCS. SALMON CUCUMBER CUT ROLL",
+        "price": "$8"
+      },
+      {
+        "name": "6PCS. SPICY TUNA ROLL",
+        "price": "$7"
+      },
+      {
+        "name": "STC ROLL",
+        "price": "$12"
+      },
+      {
+        "name": "IKI ROLL",
+        "price": "$16"
+      },
+      {
+        "name": "TORO ROLL",
+        "price": "$14"
+      }
+    ],
+    "ramen": [
+      {
+        "name": "UNI MAZEMEN",
+        "price": "$24"
+      },
+      {
+        "name": "VEGAN SPICY MISO RAMEN",
+        "price": "$18"
+      },
+      {
+        "name": "SHOYU RAMEN",
+        "price": "$18"
+      },
+      {
+        "name": "YUZU SHIO RAMEN",
+        "price": "$19.80"
+      },
+      {
+        "name": "SPICY TONKOTSU",
+        "price": "$19.80"
+      },
+      {
+        "name": "TRUFFLE BUTTER TONKOTSU",
+        "price": "$20.80"
+      },
+      {
+        "name": "BROTH - JUST SOUP",
+        "price": "$7"
+      },
+      {
+        "name": "MENTAIKO MAZEMEN",
+        "price": "$20"
+      },
+      {
+        "name": "TAI YUZU SHIO RAMEN",
+        "price": "$20"
+      },
+      {
+        "name": "SHIO RAMEN",
+        "price": "$18"
+      },
+      {
+        "name": "TONKOTSU",
+        "price": "$18"
+      },
+      {
+        "name": "BURNT GARLIC TONKOTSU RAMEN",
+        "price": "$19.80"
+      },
+      {
+        "name": "A5 WAGYU BEEF RAMEN",
+        "price": "$28"
+      }
+    ],
+    "dessert": [
+      {
+        "name": "16OZ HOME-MADE SHIO KOJI ICE CREAM TO-GO",
+        "price": "$12"
+      },
+      {
+        "name": "SHIO KOJI ICE CREAM",
+        "price": "$5"
+      },
+      {
+        "name": "16OZ HOME-MADE YUZU ICE CREAM TO-GO",
+        "price": "$12"
+      },
+      {
+        "name": "YUZU ICE CREAM",
+        "price": "$5"
+      }
+    ],
+    "soda": [
+      {
+        "name": "BOTTLE WATER",
+        "price": "$6"
+      },
+      {
+        "name": "COCA-COLA",
+        "price": "$2"
+      },
+      {
+        "name": "UCC GREEN TEA",
+        "price": "$3"
+      },
+      {
+        "name": "SPARKLING WATER",
+        "price": "$6"
+      },
+      {
+        "name": "SPRITE",
+        "price": "$2"
+      },
+      {
+        "name": "MELON SODA",
+        "price": "$3"
+      }
+    ]
+  }
+}
