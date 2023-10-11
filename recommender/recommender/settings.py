@@ -38,9 +38,10 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
 
-    'drf_spectacular',
+    "corsheaders",
+    "drf_spectacular",
     "rest_framework",
-    'rest_framework.authtoken',
+    "rest_framework.authtoken",
 
     "suggestions",
     "movies",
@@ -48,6 +49,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -128,4 +130,7 @@ REST_FRAMEWORK = {
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 }
 AUTH_USER_MODEL = 'user.User'
+
+# TODO remove this if the Website already hosted
+CORS_ALLOW_ALL_ORIGINS = True
 

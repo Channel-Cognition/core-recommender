@@ -14,3 +14,4 @@ chromadb
 tiktoken
 tvdb_v4_official
 pandas
+django-cors-headers
