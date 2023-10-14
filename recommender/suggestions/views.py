@@ -67,16 +67,12 @@ class SearchListView(APIView):
         user = self.request.user
         query = request.GET.get('q')
         is_initiate = request.GET.get('is_initiate', False)
-        convo_existing = Convo.objects.filter(user=user).latest("created_date")
         if not query:
             if is_initiate == "true":
                 new_convo = self._create_default_snippet()
                 serializer = ConvoSerializer(new_convo)
                 return Response(serializer.data, status=200)
-            # Continue the convo get from the last data
-            serializer = ConvoSerializer(convo_existing)
-            return Response (serializer.data, status=200)
-        # TODO Integrate This Code With AI
+        convo_existing = Convo.objects.filter(user=user).latest("created_date")
         convo = perform_search(query, convo_existing)
         serializer = ConvoSerializer(convo)
         return Response(serializer.data)
