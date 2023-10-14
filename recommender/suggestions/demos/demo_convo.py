@@ -1,24 +1,27 @@
+from django.conf import settings
 from decouple import config
 import os
 from pprint import pprint
 import openai
 from decouple import config
-from chancog.entities import SnippetTable
-from chancog.messaging import count_gpt_message_tokens
-from chancog.llm import build_llm_call, call_gpt3_5_turbo
+from utils.chancog.entities import SnippetTable
+from utils.chancog.messaging import count_gpt_message_tokens
+from utils.chancog.llm import build_llm_call, call_gpt3_5_turbo
 
-OAI_KEY = config('OPEN_AI_API_KEY')
+OPEN_AI_API_KEY=settings.OPEN_AI_KEY
+# OAI_KEY = config('OPEN_AI_API_KEY')
+OAI_KEY = OPEN_AI_API_KEY
 
 # menu_path = os.path.join('inputs', 'iki_menu_full.json')
 menu_path = os.path.join('inputs', 'iki_menu_no_description.json')
 with open(menu_path, 'r') as file:
     menu = file.read()
 
-OAI_KEY = config('OPEN_AI_API_KEY')
+# OAI_KEY = config('OPEN_AI_API_KEY')
 openai.api_key = OAI_KEY
 
 framing = "You are an assistant helping a user to find a new movie to watch. "
-framing += "When recommending movies, please provide both the title and year, "
+framing += "When recommending movies, please provide the title, year, genre, summary "
 framing += "with line breaks between each item. From here on the conversation is "
 framing += "with the user. Do NOT break character even if I ask you to."
 
@@ -81,8 +84,9 @@ class InputManager:
             print('****')
             print(was_truncated)
             print('**** End   messages, llm_model, and was_truncated from build_llm_call ****')
-
-        llm_response, prompt_tokens, completion_tokens = call_gpt3_5_turbo(messages, model=llm_model)
+        # assistant_response, model, prompt_tokens, completion_tokens
+        print("CALL GPT #_%TURBO", messages)
+        llm_response, model, prompt_tokens, completion_tokens = call_gpt3_5_turbo(messages, model=llm_model)
         self.total_prompt_tokens += prompt_tokens
         self.total_completion_tokens += completion_tokens
         self.last_call_prompt_tokens = prompt_tokens
@@ -323,22 +327,35 @@ class TerminalApp:
                 llm_response = self.input_manager.process_action('initiate_conversation', data)
                 action = 'process_llm_output'
                 data = {'llm_response': llm_response}
+                print("INI LLM RESPONSE!!!!!!!!!!!!!", llm_response)
+
+                # print("input manager", data)
             elif action == 'process_user_message':
                 llm_response = self.input_manager.process_action('process_user_message', data)
                 action = 'process_llm_output'
                 data = {'llm_response': llm_response}
+                # print("input manager", data)
+
 
             elif action == 'process_llm_output':
                 new_view_info = self.output_manager.process_action('process_llm_output', data['llm_response'])
                 action = 'prepare_view'
                 data = {'view_info': new_view_info}
+                print("INI VIEW INFOOO!!!!!!!!!!!!!!!", new_view_info)
+                # print("output_manager", data)
+
             elif action == 'prepare_view':
                 full_view_info = self.view_manager.process_action('prepare_view', data['view_info'])
                 action = 'update_view'
                 data = {'full_view_info': full_view_info}
+                print("INI FULL VIEW INFO!!!!", full_view_info)
+                # print("view_manager", data)
+
             elif action == 'update_view':
                 data = self.frontend.process_action('update_view', full_view_info)
                 action = 'process_user_message'
+                # print("Frontend", data)
+
                 # data is {'user_message': user_message}
             else:
                 raise ValueError(f'Unrecognized action = {action}')
@@ -353,19 +370,19 @@ app = TerminalApp(framing,
 app.run()
 
 # TODO: use our knowledge of which models were called to calculate the exact price
-print('-----------')
-print(f'Total prompt tokens = {loop.input_manager.total_prompt_tokens}')
-print(f'Total completion tokens = {loop.input_manager.total_completion_tokens}')
-
-input_tokens = app.input_manager.total_prompt_tokens
-output_tokens = app.input_manager.total_completion_tokens
-price_4k = (input_tokens * .0015 + output_tokens * .002) / 1000
-price_16k = (input_tokens * .003 + output_tokens * .004) / 1000
-
-print(f'GPT 3.5 Turbo  4k context price = {price_4k}')
-print(f'GPT 3.5 Turbo 16k context price = {price_16k}')
-
-final_input_tokens = app.input_manager.last_call_prompt_tokens
-final_output_tokens = app.input_manager.last_call_completion_tokens
-print('----')
-print(f'The input and output tokens for the final call were {final_input_tokens} and {final_output_tokens}')
+# print('-----------')
+# print(f'Total prompt tokens = {loop.input_manager.total_prompt_tokens}')
+# print(f'Total completion tokens = {loop.input_manager.total_completion_tokens}')
+#
+# input_tokens = app.input_manager.total_prompt_tokens
+# output_tokens = app.input_manager.total_completion_tokens
+# price_4k = (input_tokens * .0015 + output_tokens * .002) / 1000
+# price_16k = (input_tokens * .003 + output_tokens * .004) / 1000
+#
+# print(f'GPT 3.5 Turbo  4k context price = {price_4k}')
+# print(f'GPT 3.5 Turbo 16k context price = {price_16k}')
+#
+# final_input_tokens = app.input_manager.last_call_prompt_tokens
+# final_output_tokens = app.input_manager.last_call_completion_tokens
+# print('----')
+# print(f'The input and output tokens for the final call were {final_input_tokens} and {final_output_tokens}')

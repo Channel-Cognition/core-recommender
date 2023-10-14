@@ -1,5 +1,4 @@
-from django.shortcuts import render
-
+from django.conf import settings
 # Create your views here.
 from rest_framework.views import APIView
 
@@ -14,6 +13,9 @@ from drf_spectacular.utils import (
     OpenApiTypes
 )
 
+from .client import perform_search
+from.models import Convo, Snippet
+from .serializers import ConvoSerializer
 from movies.serializers import MovieSerializer
 
 
@@ -25,74 +27,56 @@ from movies.serializers import MovieSerializer
                 OpenApiTypes.STR,
                 description='Query Suggestion'
             ),
+            OpenApiParameter(
+                'is_initiate',
+                OpenApiTypes.BOOL,
+                description='Is initiate convo?'
+            )
         ]
     )
 )
 
 
-
 class SearchListView(APIView):
-    # authentication_classes = (TokenAuthentication,)
-    # permission_classes = (IsAuthenticated,)
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated,)
+
+    def _create_default_snippet(self):
+        new_convo = Convo.objects.create(
+            user=self.request.user
+        )
+        data = [
+            {
+                "snippet_type": "FRAMING",
+                "text": settings.TRUNCATED_FRAMING,
+                "is_initiate": True,
+                "convo": new_convo
+            },
+            {
+                "snippet_type": "ASSISTANT MESSAGE",
+                "text": settings.GREETING,
+                "is_initiate": True,
+                "convo": new_convo
+            }
+        ]
+        for snippet in data:
+            Snippet.objects.create(**snippet)
+        return new_convo
 
     def get(self, request, *args, **kwargs):
-        user = None
-        # if request.user.is_authenticated:
-        #     user = request.user.username
+        user = self.request.user
         query = request.GET.get('q')
+        is_initiate = request.GET.get('is_initiate', False)
+        convo_existing = Convo.objects.filter(user=user).latest("created_date")
         if not query:
-            return Response('', status=400)
+            if is_initiate == "true":
+                new_convo = self._create_default_snippet()
+                serializer = ConvoSerializer(new_convo)
+                return Response(serializer.data, status=200)
+            # Continue the convo get from the last data
+            serializer = ConvoSerializer(convo_existing)
+            return Response (serializer.data, status=200)
         # TODO Integrate This Code With AI
-        # results = client.perform_search(query)
-        results = [
-            {
-                "id": 1,
-                "title": "Beetlejuice",
-                "year": "1988",
-                "thumbnail": "https://images-na.ssl-images-amazon.com/images/M/MV5BMTUwODE3MDE0MV5BMl5BanBnXkFtZTgwNTk1MjI4MzE@._V1_SX300.jpg"
-            },
-            {
-                "id": 2,
-                "title": "The Cotton Club",
-                "year": "1984",
-                "thumbnail": "https://images-na.ssl-images-amazon.com/images/M/MV5BMTU5ODAyNzA4OV5BMl5BanBnXkFtZTcwNzYwNTIzNA@@._V1_SX300.jpg"
-            },
-            {
-                "id": 3,
-                "title": "The Shawshank Redemption",
-                "year": "1994",
-                "thumbnail": "https://images-na.ssl-images-amazon.com/images/M/MV5BODU4MjU4NjIwNl5BMl5BanBnXkFtZTgwMDU2MjEyMDE@._V1_SX300.jpg"
-            },
-            {
-                "id": 4,
-                "title": "Crocodile Dundee",
-                "year": "1986",
-                "thumbnail": "https://images-na.ssl-images-amazon.com/images/M/MV5BMTg0MTU1MTg4NF5BMl5BanBnXkFtZTgwMDgzNzYxMTE@._V1_SX300.jpg"
-            },
-            {
-                "id": 5,
-                "title": "Valkyrie",
-                "year": "2008",
-                "thumbnail": "http://ia.media-imdb.com/images/M/MV5BMTg3Njc2ODEyN15BMl5BanBnXkFtZTcwNTAwMzc3NA@@._V1_SX300.jpg"
-            },
-            {
-                "id": 6,
-                "title": "Ratatouille",
-                "year": "2007",
-                "thumbnail": "https://images-na.ssl-images-amazon.com/images/M/MV5BMTMzODU0NTkxMF5BMl5BanBnXkFtZTcwMjQ4MzMzMw@@._V1_SX300.jpg"
-            },
-            {
-                "id": 7,
-                "title": "City of God",
-                "year": "2002",
-                "thumbnail": "https://images-na.ssl-images-amazon.com/images/M/MV5BMjA4ODQ3ODkzNV5BMl5BanBnXkFtZTYwOTc4NDI3._V1_SX300.jpg"
-            },
-            {
-                "id": 8,
-                "title": "Memento",
-                "year": "2000",
-                "thumbnail": "https://images-na.ssl-images-amazon.com/images/M/MV5BNThiYjM3MzktMDg3Yy00ZWQ3LTk3YWEtN2M0YmNmNWEwYTE3XkEyXkFqcGdeQXVyMTQxNzMzNDI@._V1_SX300.jpg"
-            },
-            ]
-        serializer = MovieSerializer(results, many=True)
+        convo = perform_search(query, convo_existing)
+        serializer = ConvoSerializer(convo)
         return Response(serializer.data)

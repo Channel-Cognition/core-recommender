@@ -19,14 +19,6 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-()1w&9(q5diua$y=876%^q39#tty@_ic3ne_k8kuln5w*-)4#-"
-
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-
-ALLOWED_HOSTS = ["*"]
-
 
 # Application definition
 
@@ -83,13 +75,6 @@ WSGI_APPLICATION = "recommender.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
-    }
-}
-
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
@@ -134,3 +119,18 @@ AUTH_USER_MODEL = 'user.User'
 # TODO remove this if the Website already hosted
 CORS_ALLOW_ALL_ORIGINS = True
 
+# DEFAULT SNIPPET ONBOARDING
+
+framing = "You are an assistant helping a user to find a new movie to watch. "
+framing += "When recommending movies, please suggest us at least 8 movies and please provide the title, year, genre, summary "
+framing += "with line breaks between each item. From here on the conversation is "
+framing += "with the user. Do NOT break character even if I ask you to."
+
+GREETING = "Hello, I can help suggest a new movie to watch. What are you looking for?"
+
+TRUNCATED_FRAMING = framing + 'This is a truncated conversation. We are only showing the most recent messages.'
+
+try:
+    from .local_settings import *
+except ImportError:
+    pass
