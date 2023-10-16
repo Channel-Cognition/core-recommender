@@ -6,6 +6,36 @@ from .pydantics import MovieInfo
 from .suggestion import Suggestion
 
 
+def perform_search(query, convo):
+    data = []
+    # messages [{"role": role, "content": content}, {"role": role, "content": content}]
+    data.append({
+                "snippet_type": "USER MESSAGE",
+                "text": query,
+                "convo": convo
+            })
+    snippets = Snippet.objects.filter(convo=convo, snippet_type="FRAMING")
+    messages = [{"role": get_role(snippet.snippet_type), "content":snippet.text}for snippet in snippets]
+    messages.append({"role":"user", "content":query})
+    suggestion = Suggestion.build_llm_call(messages)
+    llm_response = suggestion.call_gpt()
+    pydantic_movie = extract_response(llm_response)
+    data.append({
+                "snippet_type": "LLM MESSAGE",
+                "text": get_first_sentence(llm_response),
+                "convo": convo,
+                "pydantic_text": pydantic_movie
+            })
+    for snippet in data:
+        Snippet.objects.create(**snippet)
+    return convo
+
+
+def get_first_sentence(message):
+    first_sentence = message.split(':', 1)[0]
+    return first_sentence
+
+
 def extract_response(llm_response):
     llm_response = llm_response
     prompt = """
@@ -39,28 +69,3 @@ def get_role(snippet_type):
                  'USER MESSAGE': 'user',
                  'LLM MESSAGE': 'assistant'}
     return dict_role[snippet_type]
-
-
-def perform_search(query, convo):
-    data = []
-    # messages [{"role": role, "content": content}, {"role": role, "content": content}]
-    data.append({
-                "snippet_type": "USER MESSAGE",
-                "text": query,
-                "convo": convo
-            })
-    snippets = Snippet.objects.filter(convo=convo, snippet_type="FRAMING")
-    messages = [{"role": get_role(snippet.snippet_type), "content":snippet.text}for snippet in snippets]
-    messages.append({"role":"user", "content":query})
-    suggestion = Suggestion.build_llm_call(messages)
-    llm_response = suggestion.call_gpt()
-    pydantic_movie = extract_response(llm_response)
-    data.append({
-                "snippet_type": "LLM MESSAGE",
-                "text": llm_response,
-                "convo": convo,
-                "pydantic_text": pydantic_movie
-            })
-    for snippet in data:
-        Snippet.objects.create(**snippet)
-    return convo
