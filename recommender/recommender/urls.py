@@ -17,6 +17,7 @@ urlpatterns = [
          ),
     path('api/user/', include('user.urls', namespace='user')),
     path('api/suggestions/', include('suggestions.urls', namespace='suggestions')),
+    path('api/convos/', include('convos.urls', namespace='convos')),
 ]
 
 if settings.DEBUG:
