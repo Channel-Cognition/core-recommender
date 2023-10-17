@@ -16,7 +16,6 @@ from drf_spectacular.utils import (
 from .client import perform_search
 from.models import Convo, Snippet
 from .serializers import ConvoSerializer
-from movies.serializers import MovieSerializer
 
 
 @extend_schema_view(
