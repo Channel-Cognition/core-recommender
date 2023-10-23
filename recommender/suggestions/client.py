@@ -27,7 +27,7 @@ def perform_search(query, convo):
     movies_dicts = get_or_create_movies(movie_items)
     data.append({
                 "snippet_type": "LLM MESSAGE",
-                "text": llm_response,
+                "text": "Sure, Here are recommendations movies for you!",
                 "convo": convo,
                 "pydantic_text": movies_dicts
             })
