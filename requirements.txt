@@ -15,3 +15,5 @@ tiktoken
 tvdb_v4_official
 pandas
 django-cors-headers
+Pillow
+requests

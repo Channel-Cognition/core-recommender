@@ -1,3 +1,5 @@
+import requests
+from django.conf import settings
 from utils.chancog.messaging import count_gpt_message_tokens, truncate_messages
 from utils.chancog.llm import call_gpt3_5_turbo
 
@@ -6,9 +8,8 @@ class Suggestion:
     # Suggest from Convo ID
     # messages [{"role": role, "content": content}, {"role": role, "content": content}]
     # role:snippet_type, content:text
-    def __init__(self, messages, llm_model):
-        self.messages = messages
-        self.llm_model = llm_model
+    def __init__(self, llm_message):
+        self.llm_message = llm_message
 
     @classmethod
     def build_llm_call(cls, messages):
@@ -49,8 +50,14 @@ class Suggestion:
                 truncated = False
         return cls(messages, model)
 
-    def call_gpt(self):
-        llm_response, model, prompt_tokens, completion_tokens = call_gpt3_5_turbo(self.messages, model=self.llm_model)
-        # Todo save the tokens so we can calculate how much the cost for every convo
-        return llm_response
+    def process_llm_response(self):
+        # llm_response, model, prompt_tokens, completion_tokens = call_gpt3_5_turbo(self.messages, model=self.llm_model)
+        # # Todo save the tokens so we can calculate how much the cost for every convo
+        BASE_LLM_URL = settings.BASE_LLM_URL
+        PROCESS_LLM_URL = settings.PROCESS_LLM_URL
+        URL = BASE_LLM_URL + PROCESS_LLM_URL
+        resp = requests.post(URL, json={"llm_response": self.llm_message})
+        resp_json = resp.json()
+        return resp_json
+
 
