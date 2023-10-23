@@ -6,8 +6,8 @@ from guardrails.validators import ValidRange
 class Movie(BaseModel):
     title: str = Field(description="Name of the movie")
     year: int = Field(validators=[ValidRange(min=0, max=3000)])
-    genre: str = Field(description="Genre of movie")
-    summary: str = Field(description="Summary of movie")
+    # genre: str = Field(description="Genre of movie")
+    # summary: str = Field(description="Summary of movie")
 
 
 class MovieInfo(BaseModel):

@@ -123,13 +123,32 @@ CORS_ALLOW_ALL_ORIGINS = True
 # DEFAULT SNIPPET ONBOARDING
 
 framing = "You are an assistant helping a user to find a new movie to watch. "
-framing += "When recommending movies, please suggest us at least 8 movies and please provide the title, year, genre, summary "
+framing += "When recommending movies, please suggest us at least 4 movies and please provide the title, year"
 framing += "with line breaks between each item. From here on the conversation is "
 framing += "with the user. Do NOT break character even if I ask you to."
+
+# framing = "You are an assistant helping a user to find a new movie to watch. "
+# framing += "When recommending movies, please suggest us at least 8 movies and please provide the title, year, genre, summary "
+# framing += " build a json with the fields title, year, genre, summary. From here on the conversation is "
+# framing += 'Return only a json and nothing else. Do not include movie or (bomovieok) '
+# framing += 'in the title unless it is part of the title.'
+
+
+# task = 'For the book described in the following text, build a json with the fields '
+# task += 'title, author, and year. If the text does not contain a value for one of these variables, set '
+# task += 'it to null. Please correct spelling erors and standardize both spelling and capitalization. '
+# task += 'Return only a json and nothing else. Do not include book or (book) '
+# task += 'in the title unless it is part of the title. Here is the text:\n'
+# task += text
 
 GREETING = "Hello, I can help suggest a new movie to watch. What are you looking for?"
 
 TRUNCATED_FRAMING = framing + 'This is a truncated conversation. We are only showing the most recent messages.'
+
+OPEN_AI_KEY = "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"
+
+BASE_LLM_URL = "https://chancoggenapp.azurewebsites.net/"
+PROCESS_LLM_URL = "api/processllmresponse"
 
 try:
     from .local_settings import *
