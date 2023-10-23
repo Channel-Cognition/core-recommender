@@ -93,7 +93,9 @@ def get_or_create_image_cache(instance):
         cached_image_data = cache.get(cache_key)
         if cached_image_data:
             image_dict = cached_image_data
+            print("THE CACHE IS EXISTS", flush=True)
         else:
+            print("NEW CACHE", flush=True)
             image_b64_small, image_b64_medium, image_b64_large = instance.save_image_from_url_with_resizing(
                 url=instance.thumbnail)
             image_dict = {"image_b64_small":image_b64_small,
