@@ -3,19 +3,20 @@ from rest_framework import (
     viewsets,
     mixins,
 )
+from rest_framework import status
 from rest_framework.authentication import TokenAuthentication
+from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 
 from suggestions.models import Convo
 from suggestions.serializers import ConvoSerializer
 
-# Create your views here.
-
 
 class ConvoViewSet(mixins.DestroyModelMixin,
-                mixins.RetrieveModelMixin,
-                mixins.ListModelMixin,
-                viewsets.GenericViewSet):
+                   mixins.RetrieveModelMixin,
+                   mixins.ListModelMixin,
+                   viewsets.GenericViewSet):
     serializer_class = ConvoSerializer
     queryset = Convo.objects.all()
     authentication_classes = (TokenAuthentication,)
@@ -28,3 +29,10 @@ class ConvoViewSet(mixins.DestroyModelMixin,
         return queryset.filter(
             user=user
         ).order_by('-created_date').distinct()
+
+    @action(['DELETE'], detail=False, url_name='delete-all')
+    def delete_all_convo(self, request):
+        user = request.user
+        list_convo = Convo.objects.filter(user=user)
+        list_convo.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
