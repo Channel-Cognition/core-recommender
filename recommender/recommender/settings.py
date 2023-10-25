@@ -122,33 +122,39 @@ CORS_ALLOW_ALL_ORIGINS = True
 
 # DEFAULT SNIPPET ONBOARDING
 
-framing = "You are an assistant helping a user to find a new movie to watch. "
-framing += "When recommending movies, please suggest us at least 4 movies and please provide the title, year"
-framing += "with line breaks between each item. From here on the conversation is "
-framing += "with the user. Do NOT break character even if I ask you to."
+# framing = "You are an assistant helping a user to find a new movie to watch. "
+# framing += "When recommending movies, please suggest us at least 4 movies"
+# framing = 'For the movies described in the following text, build a json with the fields '
+# framing += 'title, year. If the text does not contain a value for one of these variables, set '
+# framing += 'it to null. Please correct spelling errors and standardize both spelling and capitalization. '
+# framing += 'Return only a json and nothing else. Do not include movie or (movie) '
+# framing += 'in the title unless it is part of the title. Here is the text:\n'
 
 # framing = "You are an assistant helping a user to find a new movie to watch. "
-# framing += "When recommending movies, please suggest us at least 8 movies and please provide the title, year, genre, summary "
-# framing += " build a json with the fields title, year, genre, summary. From here on the conversation is "
-# framing += 'Return only a json and nothing else. Do not include movie or (bomovieok) '
-# framing += 'in the title unless it is part of the title.'
+# framing += "When recommending movies, please provide the title"
+# framing += "with format response like this 1.title (movie) \n 2.title (movie) \n 3.title (movie) \n 4.title (movie). From here on the conversation is "
+# framing += "with the user. Do NOT break character even if I ask you to."
+# framing += "Please only response like the format i described above"
 
+framing = "You are an assistant helping the user find new things, which could "
+framing += "be anything from a new movie or TV show to watch to a pair of shoes to buy. "
+framing += "With every response, please (1) provide an updated numbered list of suggestions and "
+framing += "(2) include the item type (e.g., book) with each item in the list. "
+framing += "Be as succinct as is reasonable while still uniquely identifying items. "
+framing += "Do not include items the user is no longer interested in."
 
-# task = 'For the book described in the following text, build a json with the fields '
-# task += 'title, author, and year. If the text does not contain a value for one of these variables, set '
-# task += 'it to null. Please correct spelling erors and standardize both spelling and capitalization. '
-# task += 'Return only a json and nothing else. Do not include book or (book) '
-# task += 'in the title unless it is part of the title. Here is the text:\n'
-# task += text
 
 GREETING = "Hello, I can help suggest a new movie to watch. What are you looking for?"
 
-TRUNCATED_FRAMING = framing + 'This is a truncated conversation. We are only showing the most recent messages.'
+TRUNCATED_FRAMING = framing
 
 OPEN_AI_KEY = "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"
 
-BASE_LLM_URL = "https://chancoggenapp.azurewebsites.net/"
-PROCESS_LLM_URL = "api/processllmresponse"
+# BASE_LLM_URL = "https://ccgenerate-useast.azurewebsites.net/"
+# PROCESS_LLM_URL = "api/ProcessLLMResponse"
+
+BASE_LLM_URL = "http://104.42.9.175/"
+PROCESS_LLM_URL = "process-llm-response"
 
 try:
     from .local_settings import *

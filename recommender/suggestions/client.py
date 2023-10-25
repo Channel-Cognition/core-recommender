@@ -13,18 +13,21 @@ from .suggestion import Suggestion
 
 def perform_search(query, convo):
     data = []
+    movies_dicts = []
     # messages [{"role": role, "content": content}, {"role": role, "content": content}]
     data.append({
                 "snippet_type": "USER MESSAGE",
                 "text": query,
                 "convo": convo
             })
-    snippets = Snippet.objects.filter(convo=convo, snippet_type="FRAMING")
-    messages = [{"role": get_role(snippet.snippet_type), "content":snippet.text}for snippet in snippets]
-    messages.append({"role":"user", "content":query})
-    llm_response = Suggestion(query).process_llm_response()
+    # snippets = Snippet.objects.filter(convo=convo, snippet_type="FRAMING")
+    # messages = [{"role": get_role(snippet.snippet_type), "content":snippet.text}for snippet in snippets]
+    # messages.append({"role":"user", "content":query})
+    llm_response = Suggestion(convo=convo, query=query).process_llm_response()
     movie_items = llm_response["items"]
-    movies_dicts = get_or_create_movies(movie_items)
+    if movie_items:
+        movie_items = [movie for movie in movie_items if movie is not None]
+        movies_dicts = get_or_create_movies(movie_items)
     data.append({
                 "snippet_type": "LLM MESSAGE",
                 "text": "Sure, Here are recommendations movies for you!",
@@ -58,8 +61,8 @@ def get_or_create_movies(movie_items):
         movie_title = movie["title"]
         movie_year = movie["year"]
         movie_ages = movie.get("ages", "")
-        short_description = movie["short_description"]
-        long_description = movie["long_description"]
+        short_description = movie["short_desc"]
+        long_description = movie["long_desc"]
         thumbnail_url = movie["thumbnail_url"]
         genres = movie.get("genres", [])
         channels = movie.get("streaming_on", [])
@@ -83,11 +86,15 @@ def get_or_create_movies(movie_items):
         movie_dict["long_description"] = instance_movie.long_description
         movie_dict["thumbnail"] = instance_movie.thumbnail
         movie_dict["image"] = get_or_create_image_cache(instance_movie)
+        movie_dict["item_type"] = "movie"
         list_movies.append(movie_dict)
     return list_movies
 
 
 def get_or_create_image_cache(instance):
+    image_dict = {"image_b64_small": None,
+                  "image_b64_medium": None,
+                  "image_b64_large": None}
     if instance.thumbnail:
         cache_key = f'image_cache_{instance.thumbnail}'
         cached_image_data = cache.get(cache_key)
