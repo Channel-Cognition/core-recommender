@@ -1,6 +1,6 @@
 Django
 djangorestframework
-psycopg2
+psycopg2-binary
 drf-spectacular
 Pillow
 guardrails-ai
@@ -18,3 +18,4 @@ django-cors-headers
 Pillow
 requests
 pinecone-client
+gunicorn

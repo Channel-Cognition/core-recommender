@@ -24,3 +24,10 @@ python manage.py migrate
 python manage.py runserver
 
 server running default on localhost:8000
+
+# Quickstart: local
+
+```console
+docker build --no-cache --network host -t ccsa_recommend .
+docker run -d -p 8000:8000 ccsa_recommend
+```
