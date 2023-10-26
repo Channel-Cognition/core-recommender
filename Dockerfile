@@ -16,7 +16,7 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy the entire project inside the container
-COPY ./recommender /app/recommender
+COPY ./recommender /app
 
 # Setting environment variable for Django settings module
 ENV DJANGO_SETTINGS_MODULE=recommender.settings
@@ -25,4 +25,4 @@ ENV DJANGO_SETTINGS_MODULE=recommender.settings
 EXPOSE 8000
 
 # Command to run Django's runserver
-CMD ["python", "recommender/manage.py", "runserver", "0.0.0.0:8000"]
+CMD ["gunicorn", "recommender.wsgi:application", "--bind", "0.0.0.0:8000"]
