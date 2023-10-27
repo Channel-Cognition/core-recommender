@@ -32,6 +32,8 @@ docker build --no-cache --network host -t ccsa_recommend .
 docker run -d -p 8000:8000 ccsa_recommend
 ```
 
+Navigate to: http://localhost:8000/api/docs/
+
 # Quickstart: cloud
 
 ```console
