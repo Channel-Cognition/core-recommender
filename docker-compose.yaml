@@ -1,0 +1,30 @@
+version: "3.9"
+services:
+   web:
+     depends_on:
+       - postgres_db
+     build:
+       context: ./recommender
+       dockerfile: Dockerfile
+     image: django-recommender-ai:v1
+     environment:
+        - PORT=8020
+     env_file:
+        - recommender/.env
+     ports:
+        - "8008:8020"
+     command: sh -c "chmod +x /app/migrate.sh && sh /app/migrate.sh && /app/entrypoint.sh"
+
+   postgres_db:
+     image: postgres
+     restart: always
+     env_file:
+       - recommender/.env
+     expose:
+       - 5434
+     ports:
+       - "5434:5434"
+     volumes:
+       - postgres_data:/var/lib/postgresql/data/
+volumes:
+  postgres_data:

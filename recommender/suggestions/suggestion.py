@@ -35,11 +35,15 @@ class Suggestion:
         openai.api_version = '2023-05-15'  # put in .env?
         deployment_name = settings.GPT35_DEPLOY_NAME
         messages = self.build_message()
+        import time
+        start = time.time()
         response = openai.ChatCompletion.create(
             engine=deployment_name,
             messages=messages,
             n=1
         )
+        end = time.time()
+        print("DIAGNOSE OPEN AI CALL", end-start)
         print(response)
         # llm_response = "1. Captain America (movie) \n 2. Hulk (movie) \n 3. Avengers (movie)"
         llm_response = response["choices"][0]["message"]["content"]
@@ -54,8 +58,12 @@ class Suggestion:
             PROCESS_LLM_URL = settings.PROCESS_LLM_URL
             URL = BASE_LLM_URL + PROCESS_LLM_URL
             llm_response = self.process_llm_call()
-            print(llm_response)
+
+            import time
+            start = time.time()
             resp = requests.post(URL, json={"llm_response": llm_response})
+            end = time.time()
+            print("DIAGNOSE OPEN AI FROM MIKE", end-start)
             if resp.status_code != 200:
                 print(resp.status_code)
                 return resp_json

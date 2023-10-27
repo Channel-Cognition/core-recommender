@@ -19,3 +19,4 @@ Pillow
 requests
 pinecone-client
 gunicorn
+django-environ

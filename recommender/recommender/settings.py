@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/4.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
-
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -19,6 +19,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
+DEBUG = str(os.getenv('DEBUG')) == "1"
 
 # Application definition
 
@@ -76,6 +77,30 @@ WSGI_APPLICATION = "recommender.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
+DB_USERNAME = os.getenv("POSTGRES_USER")
+DB_PASSWORD = os.getenv("POSTGRES_PASSWORD")
+DB_DATABASE = os.getenv("POSTGRES_DB")
+DB_HOST = os.getenv("POSTGRES_HOST")
+DB_PORT = os.getenv("POSTGRES_PORT")
+DB_IS_AVAIL = all([
+    DB_USERNAME,
+    DB_PASSWORD,
+    DB_DATABASE,
+    DB_HOST,
+    DB_PORT
+])
+
+if DB_IS_AVAIL:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': DB_DATABASE,
+            'USER': DB_USERNAME,
+            'PASSWORD': DB_PASSWORD,
+            'HOST': DB_HOST,
+            'PORT': DB_PORT,
+        }
+    }
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
@@ -134,7 +159,7 @@ CORS_ALLOW_ALL_ORIGINS = True
 # framing += "When recommending movies, please provide the title"
 # framing += "with format response like this 1.title (movie) \n 2.title (movie) \n 3.title (movie) \n 4.title (movie). From here on the conversation is "
 # framing += "with the user. Do NOT break character even if I ask you to."
-# framing += "Please only response like the format i described above"
+# framing += "Please only response like the format described above"
 
 framing = "You are an assistant helping the user find new things, which could "
 framing += "be anything from a new movie or TV show to watch to a pair of shoes to buy. "
@@ -155,6 +180,10 @@ OPEN_AI_KEY = "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"
 
 BASE_LLM_URL = "http://104.42.9.175/"
 PROCESS_LLM_URL = "process-llm-response"
+
+AZURE_OPENAI_KEY=os.getenv("AZURE_OPENAI_KEY")
+AZURE_OPENAI_ENDPOINT=os.getenv("AZURE_OPENAI_ENDPOINT")
+GPT35_DEPLOY_NAME=os.getenv("GPT35_DEPLOY_NAME")
 
 try:
     from .local_settings import *
