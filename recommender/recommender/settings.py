@@ -160,3 +160,5 @@ try:
     from .local_settings import *
 except ImportError:
     pass
+
+ALLOWED_HOSTS = ["*"] # TODO: a temporary kludge
