@@ -34,6 +34,26 @@ docker run -d -p 8000:8000 ccsa_recommend
 
 Navigate to: http://localhost:8000/api/docs/
 
+# Quickstart: cloud (once only)
+
+
+```console
+az login
+az aks create --resource-group sa-dev-useast --name sa-dev-useast --node-count 1 --enable-addons monitoring --generate-ssh-keys
+az aks get-credentials --resource-group sa-dev-useast --name sa-dev-useast
+```
+
+Check the AKS cluster deployment by looking at our nodes:
+
+```console
+kubectl get nodes
+```
+
+You should see something like this:
+
+NAME                                STATUS   ROLES   AGE     VERSION
+aks-nodepool1-28562811-vmss000000   Ready    agent   2m56s   v1.26.6
+
 # Quickstart: cloud
 
 ```console

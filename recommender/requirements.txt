@@ -3,16 +3,11 @@ djangorestframework
 psycopg2-binary
 drf-spectacular
 Pillow
-guardrails-ai
 pydantic
 typing
-openai
 rich
 python-decouple
-langchain
-chromadb
 tiktoken
-tvdb_v4_official
 pandas
 django-cors-headers
 Pillow
@@ -20,3 +15,5 @@ requests
 pinecone-client
 gunicorn
 django-environ
+python-dotenv
+openai
