@@ -85,7 +85,11 @@ def get_or_create_movies(movie_items):
         movie_dict["summary"] = instance_movie.short_description
         movie_dict["long_description"] = instance_movie.long_description
         movie_dict["thumbnail"] = instance_movie.thumbnail
+        import time
+        start = time.time()
         movie_dict["image"] = get_or_create_image_cache(instance_movie)
+        end = time.time()
+        print("CACHE TIME", end-start)
         movie_dict["item_type"] = "movie"
         list_movies.append(movie_dict)
     return list_movies
