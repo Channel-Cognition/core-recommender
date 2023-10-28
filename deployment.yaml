@@ -16,7 +16,7 @@ spec:
       - name: acr-credentials
       containers:
       - name: ccsa-recommend
-        image: chancog.azurecr.io/ccsa_recommend:v0.1.1
+        image: chancog.azurecr.io/ccsa_recommend:v0.1.2
         ports:
         - containerPort: 8000
 ---

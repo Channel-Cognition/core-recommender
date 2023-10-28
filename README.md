@@ -54,6 +54,14 @@ You should see something like this:
 NAME                                STATUS   ROLES   AGE     VERSION
 aks-nodepool1-28562811-vmss000000   Ready    agent   2m56s   v1.26.6
 
+Safely create a secret you can link to using PowerShell. ACR_REGISTRY
+ACR_USERNAME, and ACR_PASSWORD must be defined in your .env file.
+
+```console
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+.\create_secret.ps1
+```
+
 # Quickstart: cloud
 
 ```console
@@ -64,8 +72,8 @@ docker run -d -p 8000:8000 ccsa_recommend
 ```console
 az login
 az acr login --name chancog
-docker tag ccsa_recommend:latest chancog.azurecr.io/ccsa_recommend:v0.1.1
-docker push chancog.azurecr.io/ccsa_recommend:v0.1.1
+docker tag ccsa_recommend:latest chancog.azurecr.io/ccsa_recommend:v0.1.2
+docker push chancog.azurecr.io/ccsa_recommend:v0.1.2
 ```
 
 Modify deployment.yaml to have the same name and version, then deploy:
@@ -85,9 +93,11 @@ ccsa-generate-service    LoadBalancer   10.0.125.203   104.42.9.175     80:30375
 ccsa-recommend-service   LoadBalancer   10.0.92.32     20.253.217.145   80:30694/TCP   19s
 kubernetes               ClusterIP      10.0.0.1       <none>           443/TCP        42h
 
-In this example, 
+In this example, the swagger documentation should be viewable here:
 
-Use when needed (kubernetes does nothing if deployment.yaml is unchanged, even if the image has been changed):
+http://20.253.217.145/api/docs/
+
+Use the following commands when needed (kubernetes does nothing if deployment.yaml is unchanged, even if the image has been changed):
 
 ```console
 kubectl delete deployment ccsa-recommend-deployment
