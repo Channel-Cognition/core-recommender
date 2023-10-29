@@ -15,11 +15,20 @@ from pathlib import Path
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+SECRET_KEY = os.getenv('SECRET_KEY')
+
+# SECURITY WARNING: don't run with debug turned on in production!
+
+ENV_ALLOWED_HOST = os.environ.get("ENV_ALLOWED_HOST")
+ALLOWED_HOSTS = []
+if ENV_ALLOWED_HOST:
+    ALLOWED_HOSTS = [ ENV_ALLOWED_HOST ]
+
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
-DEBUG = str(os.getenv('DEBUG')) == "1"
+DEBUG = str(os.getenv('DEBUG')) == "true"
 
 # Application definition
 
@@ -89,6 +98,7 @@ DB_IS_AVAIL = all([
     DB_HOST,
     DB_PORT
 ])
+DB_IGNORE_SSL=os.environ.get("DB_IGNORE_SSL") == "true"
 
 if DB_IS_AVAIL:
     DATABASES = {
@@ -101,6 +111,10 @@ if DB_IS_AVAIL:
             'PORT': DB_PORT,
         }
     }
+    if not DB_IGNORE_SSL:
+         DATABASES["default"]["OPTIONS"] = {
+            "sslmode": "require"
+         }
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
@@ -184,6 +198,14 @@ PROCESS_LLM_URL = "process-llm-response"
 AZURE_OPENAI_KEY=os.getenv("AZURE_OPENAI_KEY")
 AZURE_OPENAI_ENDPOINT=os.getenv("AZURE_OPENAI_ENDPOINT")
 GPT35_DEPLOY_NAME=os.getenv("GPT35_DEPLOY_NAME")
+
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+        "LOCATION": "unique-snowflake",
+        "TIMEOUT": None
+    }
+}
 
 try:
     from .local_settings import *

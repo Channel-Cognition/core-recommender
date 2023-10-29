@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: core-recommender-web-deployment
+  labels:
+    app: core-recommender-web-deployment
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: core-recommender-web-deployment
+  template:
+    metadata:
+      labels:
+        app: core-recommender-web-deployment
+    spec:
+      containers:
+      - name: core-recommender
+        image: recommenderai.azurecr.io/recommenderai/core-recommender:v1
+        imagePullPolicy: Always
+        envFrom:
+          - secretRef:
+              name: core-recommender-web-prod-env
+        env:
+          - name: PORT
+            value: "8002"
+        ports:
+        - containerPort: 8002
+      imagePullSecrets:
+        - name: recommender-secret
+
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: core-recommender-web-service
+spec:
+  type: LoadBalancer
+  ports:
+    - name: http
+      protocol: TCP
+      port: 80
+      targetPort: 8002
+  selector:
+    app: core-recommender-web-deployment
