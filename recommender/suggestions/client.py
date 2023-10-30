@@ -2,14 +2,12 @@ from django.conf import settings
 from django.core.cache import cache
 from django.db import transaction
 
-import guardrails as gd
 import openai
 
 from movies.models import Movie, Genre, Channel
 from .models import Snippet
 from .pydantics import MovieInfo
 from .suggestion import Suggestion
-
 
 def perform_search(query, convo):
     data = []
@@ -120,33 +118,40 @@ def get_first_sentence(message):
     first_sentence = message.split(':', 1)[0]
     return first_sentence
 
-
-def extract_response(llm_response):
-    llm_response = llm_response
-    prompt = """
-
-    ${llm_response}
-
-    ${gr.complete_json_suffix_v2}
-    """
-    # From pydantic:
-    guard = gd.Guard.from_pydantic(output_class=MovieInfo, prompt=prompt)
-    OPEN_AI_API_KEY = settings.OPEN_AI_KEY
-    OAI_KEY = OPEN_AI_API_KEY
-
-    # Wrap the OpenAI API call with the `guard` object
-    openai.api_key = OAI_KEY
-    raw_llm_output, validated_output = guard(
-        openai.Completion.create,
-        prompt_params={"llm_response": llm_response},
-        engine="text-davinci-003",
-        max_tokens=2048,
-        temperature=0.3,
-    )
-    print(validated_output)
-    print(raw_llm_output)
-    return validated_output
-
+# This approach is deprecated and no longer used
+#def extract_response(llm_response):
+#    llm_response = llm_response
+#    prompt = """
+#
+#    ${llm_response}
+#
+#    ${gr.complete_json_suffix_v2}
+#    """
+#    # From pydantic:
+##    guard = gd.Guard.from_pydantic(output_class=MovieInfo, prompt=prompt)
+#    OPEN_AI_API_KEY = settings.OPEN_AI_KEY # TODO: should not be calling regular open AI endpoint
+#                                           #       either use the chancog class or call the BED2 endpoint
+#    OAI_KEY = OPEN_AI_API_KEY
+#
+#    # Wrap the OpenAI API call with the `guard` object
+#    openai.api_key = OAI_KEY
+##    raw_llm_output, validated_output = guard(
+##        openai.Completion.create,
+##        prompt_params={"llm_response": llm_response},
+##        engine="text-davinci-003",
+##        max_tokens=2048,
+##        temperature=0.3,
+##    )
+##    print(validated_output)
+##    print(raw_llm_output)
+#    openai.Completion.create,
+#        prompt_params={"llm_response": llm_response},
+#        engine="text-davinci-003",
+#        max_tokens=2048,
+#        temperature=0.3,
+#
+#    return validated_output
+#
 
 def get_role(snippet_type):
     dict_role = {'FRAMING': 'system',
