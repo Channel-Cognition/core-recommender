@@ -17,7 +17,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Install custom wheel files
 COPY wheels /wheels
-RUN pip install /wheels/chancog-0.3.dev125-py3-none-any.whl
+RUN pip install /wheels/chancog-0.3.dev132-py3-none-any.whl
 
 # Copy the entire project inside the container
 COPY ./recommender /app

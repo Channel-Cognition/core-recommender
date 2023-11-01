@@ -15,7 +15,7 @@ from pathlib import Path
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = os.getenv('SECRET_KEY')
+SECRET_KEY = os.environ.get('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 
@@ -86,11 +86,11 @@ WSGI_APPLICATION = "recommender.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
-DB_USERNAME = os.getenv("POSTGRES_USER")
-DB_PASSWORD = os.getenv("POSTGRES_PASSWORD")
-DB_DATABASE = os.getenv("POSTGRES_DB")
-DB_HOST = os.getenv("POSTGRES_HOST")
-DB_PORT = os.getenv("POSTGRES_PORT")
+DB_USERNAME = os.environ.get("POSTGRES_USER")
+DB_PASSWORD = os.environ.get("POSTGRES_PASSWORD")
+DB_DATABASE = os.environ.get("POSTGRES_DB")
+DB_HOST = os.environ.get("POSTGRES_HOST")
+DB_PORT = os.environ.get("POSTGRES_PORT")
 DB_IS_AVAIL = all([
     DB_USERNAME,
     DB_PASSWORD,
@@ -187,17 +187,18 @@ GREETING = "Hello, I can help suggest a new movie to watch. What are you looking
 
 TRUNCATED_FRAMING = framing
 
-OPEN_AI_KEY = "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"
+AZURE_OPENAI_KEY=os.environ.get("AZURE_OPENAI_KEY")
+AZURE_OPENAI_ENDPOINT=os.environ.get("AZURE_OPENAI_ENDPOINT")
+GPT35_DEPLOY_NAME=os.environ.get("GPT35_DEPLOY_NAME")
 
-# BASE_LLM_URL = "https://ccgenerate-useast.azurewebsites.net/"
-# PROCESS_LLM_URL = "api/ProcessLLMResponse"
+COSMOS_URL = os.environ.get("COSMOS_URL")
+COSMOS_KEY = os.environ.get("COSMOS_KEY")
+COSMOS_DB_NAME = os.environ.get("COSMOS_DATABASE_NAME")
 
-BASE_LLM_URL = "http://104.42.9.175/"
-PROCESS_LLM_URL = "process-llm-response"
+PINECONE_API_KEY=os.environ.get("PINECONE_API_KEY")
+PINECONE_ENV=os.environ.get("PINECONE_ENV")
 
-AZURE_OPENAI_KEY=os.getenv("AZURE_OPENAI_KEY")
-AZURE_OPENAI_ENDPOINT=os.getenv("AZURE_OPENAI_ENDPOINT")
-GPT35_DEPLOY_NAME=os.getenv("GPT35_DEPLOY_NAME")
+TVDB_KEY = os.environ.get("TVDB_KEY")
 
 CACHES = {
     "default": {
@@ -206,10 +207,3 @@ CACHES = {
         "TIMEOUT": None
     }
 }
-
-try:
-    from .local_settings import *
-except ImportError:
-    pass
-
-ALLOWED_HOSTS = ["*"] # TODO: a temporary kludge

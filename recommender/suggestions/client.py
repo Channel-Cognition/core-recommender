@@ -2,12 +2,63 @@ from django.conf import settings
 from django.core.cache import cache
 from django.db import transaction
 
-import openai
+from django.conf import settings
+from chancog.sagenerate.cosmos import CosmosHandler
+from chancog.sagenerate.endpoints import process_new_user_message
+from chancog.llm import OAIAzureServiceHandler
+from chancog.sagenerate.tvdb import TVDBHandler
+from chancog.sagenerate.openlibrary import OpenLibraryHandler
+from chancog.llm import PineconeManager
+from decouple import config
 
 from movies.models import Movie, Genre, Channel
 from .models import Snippet
 from .pydantics import MovieInfo
 from .suggestion import Suggestion
+
+
+def perform_search_v2(query, convo_id):
+    COSMOS_URL = settings.COSMOS_URL
+    COSMOS_KEY = settings.COSMOS_KEY
+    DATABASE_NAME = 'ConversationsDB'
+    cosmos_handler = CosmosHandler(COSMOS_KEY, COSMOS_URL, DATABASE_NAME)
+
+    model_deployments = {
+        'gpt-3.5-turbo': 'gpt-35-turbo-caeast',  # Azure sometimes uses gpt-35-turbo
+        'gpt-4': 'gpt-4-default-caeast',
+        'text-embedding-ada-002': 'text-embedding-ada-002-caeast'
+    }
+
+    oai_handler = OAIAzureServiceHandler(
+        azure_openai_key=settings.AZURE_OPENAI_KEY,
+        azure_openai_endpoint=settings.AZURE_OPENAI_ENDPOINT,
+        model_deployments=model_deployments
+    )
+
+    # Pinecone Configuration
+    pc_handler = PineconeManager(
+        'sa-items2',
+        settings.PINECONE_API_KEY,
+        settings.PINECONE_ENV
+    )
+
+    # TVDB Handler Initialization
+    tvdb_handler = TVDBHandler(config("TVDB_KEY"))
+
+    # Open Library Handler
+    ol_handler = OpenLibraryHandler()
+    results = process_new_user_message(
+        convo_id=convo_id,
+        user_message=query,
+        cosmos_handler=cosmos_handler,
+        oai_handler=oai_handler,
+        pc_handler=pc_handler,
+        tvdb_handler=tvdb_handler,
+        ol_handler=ol_handler,
+        fast_dev=False
+    )
+    return results
+
 
 def perform_search(query, convo):
     data = []
@@ -35,6 +86,7 @@ def perform_search(query, convo):
     for snippet in data:
         Snippet.objects.create(**snippet)
     return convo
+
 
 
 def get_or_create_genres(genres, movie):
@@ -118,40 +170,6 @@ def get_first_sentence(message):
     first_sentence = message.split(':', 1)[0]
     return first_sentence
 
-# This approach is deprecated and no longer used
-#def extract_response(llm_response):
-#    llm_response = llm_response
-#    prompt = """
-#
-#    ${llm_response}
-#
-#    ${gr.complete_json_suffix_v2}
-#    """
-#    # From pydantic:
-##    guard = gd.Guard.from_pydantic(output_class=MovieInfo, prompt=prompt)
-#    OPEN_AI_API_KEY = settings.OPEN_AI_KEY # TODO: should not be calling regular open AI endpoint
-#                                           #       either use the chancog class or call the BED2 endpoint
-#    OAI_KEY = OPEN_AI_API_KEY
-#
-#    # Wrap the OpenAI API call with the `guard` object
-#    openai.api_key = OAI_KEY
-##    raw_llm_output, validated_output = guard(
-##        openai.Completion.create,
-##        prompt_params={"llm_response": llm_response},
-##        engine="text-davinci-003",
-##        max_tokens=2048,
-##        temperature=0.3,
-##    )
-##    print(validated_output)
-##    print(raw_llm_output)
-#    openai.Completion.create,
-#        prompt_params={"llm_response": llm_response},
-#        engine="text-davinci-003",
-#        max_tokens=2048,
-#        temperature=0.3,
-#
-#    return validated_output
-#
 
 def get_role(snippet_type):
     dict_role = {'FRAMING': 'system',
