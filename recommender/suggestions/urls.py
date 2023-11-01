@@ -3,5 +3,5 @@ from django.urls import path
 from . import views
 app_name = "suggestions"
 urlpatterns = [
-    path('', views.SearchListView.as_view(), name='search')
+    path('', views.SearchListV2View.as_view(), name='search')
 ]
