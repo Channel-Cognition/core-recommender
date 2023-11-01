@@ -5,14 +5,19 @@ RUN apt-get update && \
     apt-get install -y --no-install-recommends git && \
     rm -rf /var/lib/apt/lists/*
 
+# Copy local directory contents to /app directory in the container
 COPY . /app
 WORKDIR /app
 
-RUN python3 -m venv /opt/venv
+# Upgrade pip and install required python packages
+RUN python3 -m pip install --upgrade pip && \
+    pip install -r requirements.txt
 
-RUN /opt/venv/bin/python3 -m pip install --upgrade pip && \
-    /opt/venv/bin/pip install -r requirements.txt && \
-    /opt/venv/bin/pip install chancog-0.3.dev132-py3-none-any.whl && \
-    chmod +x entrypoint.sh
+# Copy wheel files over [this may be superfluous]
+COPY wheels /wheels 
 
-CMD ["/app/entrypoint.sh"]
+# Install all wheel files from the /wheels directory
+RUN pip install /wheels/*.whl
+
+# Command to run Django's runserver
+CMD ["gunicorn", "recommender.wsgi:application", "--bind", "0.0.0.0:8000"]
