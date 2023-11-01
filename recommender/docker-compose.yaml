@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  web:
+    image: ccsa_recommend:latest
+    env_file:
+      - .env  # Path to your .env file
+    ports:
+      - "8000:8000"
+    depends_on:
+      - postgres_db
+    networks:
+      - backend
+
+  postgres_db:
+    image: postgres:latest
+    env_file:
+      - .env  # Path to your .env file
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - backend
+
+networks:
+  backend:
+    driver: bridge
+
+volumes:
+  postgres_data:
