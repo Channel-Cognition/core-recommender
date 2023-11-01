@@ -14,6 +14,11 @@ Pillow
 requests
 pinecone-client
 gunicorn
-django-environ
 python-dotenv
 openai
+azure-cosmos
+pytest
+pytest-mock
+tvdb_v4_official
+google-api-python-client
+git+https://github.com/internetarchive/openlibrary-client.git

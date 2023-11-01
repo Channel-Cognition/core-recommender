@@ -103,3 +103,34 @@ Use the following commands when needed (kubernetes does nothing if deployment.ya
 kubectl delete deployment ccsa-recommend-deployment
 kubectl delete svc ccsa-recommend-service
 ```
+
+# Building the chancog wheel file and using it in a Docker container
+Set the local branch environmental variables. Windows cmd:
+
+```console
+set BUILD_SOURCEBRANCHNAME=dev
+```
+Windows Powershell:
+
+```console
+$env:BUILD_SOURCEBRANCHNAME = "dev"
+```
+
+In the chancog repo, run
+```console
+python setup.py clean --all
+python setup.py bdist_wheel
+```
+
+Copy the wheel file from/chancog/dist into /ccgenerate/wheels
+Check that the name of the wheel file in Dockers is the same as in /wheels
+
+Then you can build and run the image locally as above:
+
+```console
+docker build --no-cache --network host -t ccsa_recommend .
+docker run -d -p 8000:8000 ccsa_recommend
+```
+
+Navigate to: http://localhost:8000/api/docs/
+
