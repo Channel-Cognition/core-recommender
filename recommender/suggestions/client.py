@@ -55,7 +55,7 @@ def perform_search_v2(query, convo_id):
         pc_handler=pc_handler,
         tvdb_handler=tvdb_handler,
         ol_handler=ol_handler,
-        fast_dev=False
+        fast_dev=True
     )
     return results
 

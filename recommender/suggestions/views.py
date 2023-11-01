@@ -14,10 +14,11 @@ from drf_spectacular.utils import (
     OpenApiParameter,
     OpenApiTypes
 )
-from chancog.entities import Snippet
-from queries.convo import Convo
+from chancog.entities import Snippet as SnippetChancog
+from queries.convo import Convo as ConvoCosmosDB
 
 from .client import perform_search, perform_search_v2
+from .models import Convo, Snippet
 from .serializers import ConvoSerializer
 
 
@@ -67,6 +68,44 @@ class SearchListView(APIView):
         serializer = ConvoSerializer(convo)
         return Response(serializer.data)
 
+# Integrated With Cosmos DB
+class SearchListV2View(APIView):
+    # authentication_classes = (TokenAuthentication,)
+    # permission_classes = (IsAuthenticated,)
+
+    def _create_default_snippet(self):
+        data = [
+        ]
+        convo_id = str(uuid.uuid4())
+        is_created = ConvoCosmosDB(convo_id=convo_id).create()
+        if is_created:
+            data = [
+                Snippet("FRAMING", settings.TRUNCATED_FRAMING, datetime.now()),
+                Snippet("ASSISTANT MESSAGE", settings.GREETING, datetime.now() )
+            ]
+        is_created = ConvoCosmosDB(convo_id=convo_id).create_snippets(data)
+        return convo_id
+
+    def get(self, request, *args, **kwargs):
+        user = self.request.user
+        query = request.GET.get('q')
+        is_initiate = request.GET.get('is_initiate', False)
+        convo_id = request.GET.get('convo_id', None)
+        if convo_id is None:
+            new_convo_id = self._create_default_snippet()
+            get_convo = ConvoCosmosDB(convo_id=new_convo_id).get()
+            convo_dict = get_convo.to_dict()
+            convo_dict["convo_id"] = new_convo_id
+            return Response(convo_dict, status=200)
+        is_snippet_created = ConvoCosmosDB(convo_id=convo_id).create_snippets([Snippet(
+            snippet_type="USER MESSAGE",
+            text=query, timestamp= datetime.now())])
+        if is_snippet_created:
+            results = perform_search_v2(query, convo_id)
+            ConvoCosmosDB(convo_id=convo_id).create_snippets([Snippet("LLM MESSAGE", results)])
+            get_convo = ConvoCosmosDB(convo_id=convo_id).get()
+            return Response(get_convo.to_dict(), status=200)
+
 
 @extend_schema_view(
     get=extend_schema(
@@ -89,23 +128,33 @@ class SearchListView(APIView):
         ]
     )
 )
-# Integrated With Cosmos DB
-class SearchListV2View(APIView):
-    # authentication_classes = (TokenAuthentication,)
-    # permission_classes = (IsAuthenticated,)
+
+
+class SearchListViewV3(APIView):
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated,)
 
     def _create_default_snippet(self):
+        new_convo = Convo.objects.create(
+            user=self.request.user
+        )
         data = [
+            {
+                "snippet_type": "FRAMING",
+                "text": settings.TRUNCATED_FRAMING,
+                "is_initiate": True,
+                "convo": new_convo
+            },
+            {
+                "snippet_type": "ASSISTANT MESSAGE",
+                "text": settings.GREETING,
+                "is_initiate": True,
+                "convo": new_convo
+            }
         ]
-        convo_id = str(uuid.uuid4())
-        is_created = Convo(convo_id=convo_id).create()
-        if is_created:
-            data = [
-                Snippet("FRAMING", settings.TRUNCATED_FRAMING, datetime.now()),
-                Snippet("ASSISTANT MESSAGE", settings.GREETING, datetime.now() )
-            ]
-        is_created = Convo(convo_id=convo_id).create_snippets(data)
-        return convo_id
+        for snippet in data:
+            Snippet.objects.create(**snippet)
+        return new_convo
 
     def get(self, request, *args, **kwargs):
         user = self.request.user
@@ -113,16 +162,27 @@ class SearchListV2View(APIView):
         is_initiate = request.GET.get('is_initiate', False)
         convo_id = request.GET.get('convo_id', None)
         if convo_id is None:
-            new_convo_id = self._create_default_snippet()
-            get_convo = Convo(convo_id=new_convo_id).get()
-            convo_dict = get_convo.to_dict()
-            convo_dict["convo_id"] = new_convo_id
-            return Response(convo_dict, status=200)
-        is_snippet_created = Convo(convo_id=convo_id).create_snippets([Snippet(
-            snippet_type="USER MESSAGE",
-            text=query, timestamp= datetime.now())])
-        if is_snippet_created:
-            results = perform_search_v2(query, convo_id)
-            Convo(convo_id=convo_id).create_snippets([Snippet("LLM MESSAGE", results)])
-            get_convo = Convo(convo_id=convo_id).get()
-            return Response(get_convo.to_dict(), status=200)
+            new_convo = self._create_default_snippet()
+            serializer = ConvoSerializer(new_convo)
+            return Response(serializer.data, status=200)
+        convo_existing = Convo.objects.filter(user=user, convo_id=convo_id).latest("created_date")
+        snippets = [{
+            "snippet_type": "USER MESSAGE",
+            "text": query,
+            "convo": convo_existing
+        }]
+        import time
+        start = time.time()
+        results = perform_search_v2(query, str(convo_existing.convo_id))
+        end = time.time()
+        print("perform_search", end-start)
+        snippets.append({
+                "snippet_type": "LLM MESSAGE",
+                "text": results["llm_response"],
+                "convo": convo_existing,
+                "pydantic_text": results["items"]
+            })
+        for snippet in snippets:
+            Snippet.objects.create(**snippet)
+        serializer = ConvoSerializer(convo_existing)
+        return Response(serializer.data, status=200)
