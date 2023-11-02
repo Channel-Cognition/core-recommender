@@ -27,15 +27,39 @@ server running default on localhost:8000
 
 # Quickstart: local
 
+If necessary, build the wheel file in the chancog directory
+
+```console
+set BUILD_SOURCEBRANCHNAME=dev
+```
+Windows Powershell:
+
+```console
+$env:BUILD_SOURCEBRANCHNAME = "dev"
+```
+
+In the chancog repo, run
+```console
+python setup.py clean --all
+python setup.py bdist_wheel
+```
+
+Copy the wheel file from/chancog/dist into /ccgenerate/wheels
+Check that the name of the wheel file in Dockers is the same as in /wheels
+
+Switch back to the core-recommender/recommnder directory. Make sure you have a complete .env file at that location. Then, build and run the Dockerfile:
+
 ```console
 docker build --no-cache --network host -t ccsa_recommend .
-docker run -d -p 8000:8000 ccsa_recommend
+docker compose up
 ```
 
 Navigate to: http://localhost:8000/api/docs/
 
-# Quickstart: cloud (once only)
+WARNING: The .env file should only be used for local dev. It is present in both .gitignore and .dockerignore.
 
+# Quickstart: cloud (once only)
+TBD
 
 ```console
 az login
@@ -103,34 +127,3 @@ Use the following commands when needed (kubernetes does nothing if deployment.ya
 kubectl delete deployment ccsa-recommend-deployment
 kubectl delete svc ccsa-recommend-service
 ```
-
-# Building the chancog wheel file and using it in a Docker container
-Set the local branch environmental variables. Windows cmd:
-
-```console
-set BUILD_SOURCEBRANCHNAME=dev
-```
-Windows Powershell:
-
-```console
-$env:BUILD_SOURCEBRANCHNAME = "dev"
-```
-
-In the chancog repo, run
-```console
-python setup.py clean --all
-python setup.py bdist_wheel
-```
-
-Copy the wheel file from/chancog/dist into /ccgenerate/wheels
-Check that the name of the wheel file in Dockers is the same as in /wheels
-
-Then you can build and run the image locally as above:
-
-```console
-docker build --no-cache --network host -t ccsa_recommend .
-docker run -d -p 8000:8000 ccsa_recommend
-```
-
-Navigate to: http://localhost:8000/api/docs/
-
