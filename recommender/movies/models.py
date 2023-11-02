@@ -74,33 +74,3 @@ class Movie(models.Model):
     class Meta:
         unique_together = (('title', 'year'),)
 
-    def save_image_from_url_with_resizing(self, url):
-        try:
-            response = requests.get(url)
-            if response.status_code == 200:
-                # Open the image using Pillow
-                img = Image.open(BytesIO(response.content))
-
-                # Resize the image
-                img_small = img.resize((100, 150), Image.LANCZOS)
-                img_medium = img.resize((400, 600), Image.LANCZOS)
-                img_large = img.resize((800, 1000), Image.LANCZOS)
-
-                # Convert the resized image data to base64
-                buffered = BytesIO()
-                img_small.save(buffered, format="JPEG")
-                image_data_base64_small = base64.b64encode(buffered.getvalue()).decode('utf-8')
-
-                buffered = BytesIO()
-                img_medium.save(buffered, format="JPEG")
-                image_data_base64_medium = base64.b64encode(buffered.getvalue()).decode('utf-8')
-
-                buffered = BytesIO()
-                img_large.save(buffered, format="JPEG")
-                image_data_base64_large = base64.b64encode(buffered.getvalue()).decode('utf-8')
-
-                return image_data_base64_small, image_data_base64_medium, image_data_base64_large
-            else:
-                print("Failed to fetch image from URL.")
-        except Exception as e:
-            print("Error:", str(e))

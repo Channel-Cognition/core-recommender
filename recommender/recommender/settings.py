@@ -11,6 +11,11 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 import os
 from pathlib import Path
+from chancog.sagenerate.cosmos import CosmosHandler
+from chancog.llm import OAIAzureServiceHandler
+from chancog.sagenerate.tvdb import TVDBHandler
+from chancog.sagenerate.openlibrary import OpenLibraryHandler
+from chancog.llm import PineconeManager
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -85,7 +90,6 @@ WSGI_APPLICATION = "recommender.wsgi.application"
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
-
 DB_USERNAME = os.environ.get("POSTGRES_USER")
 DB_PASSWORD = os.environ.get("POSTGRES_PASSWORD")
 DB_DATABASE = os.environ.get("POSTGRES_DB")
@@ -207,3 +211,34 @@ CACHES = {
         "TIMEOUT": None
     }
 }
+
+DATABASE_NAME = "ConversationsDB"
+
+COSMOS_HANDLER = CosmosHandler(COSMOS_KEY, COSMOS_URL, DATABASE_NAME)
+
+MODEL_DEPLOYMENTS = {
+    'gpt-3.5-turbo': 'gpt-35-turbo-caeast',  # Azure sometimes uses gpt-35-turbo
+    'gpt-4': 'gpt-4-default-caeast',
+    'text-embedding-ada-002': 'text-embedding-ada-002-caeast'
+}
+
+OAI_HANDLER = OAIAzureServiceHandler(
+    azure_openai_key=AZURE_OPENAI_KEY,
+    azure_openai_endpoint=AZURE_OPENAI_ENDPOINT,
+    model_deployments=MODEL_DEPLOYMENTS
+)
+
+# Pinecone Configuration
+PC_HANDLER = PineconeManager(
+    'sa-items2',
+    PINECONE_API_KEY,
+    PINECONE_ENV
+)
+
+# TVDB Handler Initialization
+TVDB_HANDLER = TVDBHandler(TVDB_KEY)
+
+# Open Library Handler
+OL_HANDLER = OpenLibraryHandler()
+
+IS_FAST_DEV = str(os.getenv('IS_FAST_DEV')) == "true"
