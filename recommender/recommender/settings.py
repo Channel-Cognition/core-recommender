@@ -20,14 +20,14 @@ from chancog.llm import PineconeManager
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = os.environ.get('SECRET_KEY')
+SECRET_KEY = os.environ.get('SecretKey')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 
-ENV_ALLOWED_HOST = os.environ.get("ENV_ALLOWED_HOST")
+ENV_ALLOWED_HOST = os.environ.get("EnvAllowedHost")
 ALLOWED_HOSTS = []
 if ENV_ALLOWED_HOST:
-    ALLOWED_HOSTS = [ ENV_ALLOWED_HOST ]
+    ALLOWED_HOSTS = [ ENV_ALLOWED_HOST]
 
 
 # Quick-start development settings - unsuitable for production
@@ -90,11 +90,11 @@ WSGI_APPLICATION = "recommender.wsgi.application"
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
-DB_USERNAME = os.environ.get("POSTGRES_USER")
-DB_PASSWORD = os.environ.get("POSTGRES_PASSWORD")
-DB_DATABASE = os.environ.get("POSTGRES_DB")
-DB_HOST = os.environ.get("POSTGRES_HOST")
-DB_PORT = os.environ.get("POSTGRES_PORT")
+DB_USERNAME = os.environ.get("PostgresUser")
+DB_PASSWORD = os.environ.get("PostgresPassword")
+DB_DATABASE = os.environ.get("PostgresDB")
+DB_HOST = os.environ.get("PostgresHost")
+DB_PORT = os.environ.get("PostgresPort")
 DB_IS_AVAIL = all([
     DB_USERNAME,
     DB_PASSWORD,
@@ -102,7 +102,7 @@ DB_IS_AVAIL = all([
     DB_HOST,
     DB_PORT
 ])
-DB_IGNORE_SSL=os.environ.get("DB_IGNORE_SSL") == "true"
+DBIgnoreSSL=os.environ.get("DBIgnoreSSL") == "true"
 
 if DB_IS_AVAIL:
     DATABASES = {
@@ -115,7 +115,7 @@ if DB_IS_AVAIL:
             'PORT': DB_PORT,
         }
     }
-    if not DB_IGNORE_SSL:
+    if not DBIgnoreSSL:
          DATABASES["default"]["OPTIONS"] = {
             "sslmode": "require"
          }
@@ -179,6 +179,8 @@ CORS_ALLOW_ALL_ORIGINS = True
 # framing += "with the user. Do NOT break character even if I ask you to."
 # framing += "Please only response like the format described above"
 
+# TODO: pass framing and greeting from the frontend when a conversation is initiated,
+#       rather than hardcoding it here.
 framing = "You are an assistant helping the user find new things, which could "
 framing += "be anything from a new movie or TV show to watch to a pair of shoes to buy. "
 framing += "With every response, please (1) provide an updated numbered list of suggestions and "
@@ -191,18 +193,18 @@ GREETING = "Hello, I can help suggest a new movie to watch. What are you looking
 
 TRUNCATED_FRAMING = framing
 
-AZURE_OPENAI_KEY=os.environ.get("AZURE_OPENAI_KEY")
-AZURE_OPENAI_ENDPOINT=os.environ.get("AZURE_OPENAI_ENDPOINT")
-GPT35_DEPLOY_NAME=os.environ.get("GPT35_DEPLOY_NAME")
+AzureOpenAIKey=os.environ.get("AzureOpenAIKey")
+AzureOpenAIEndpoint=os.environ.get("AzureOpenAIEndpoint")
+GPT35DeployName=os.environ.get("GPT35DeployName")
 
-COSMOS_URL = os.environ.get("COSMOS_URL")
-COSMOS_KEY = os.environ.get("COSMOS_KEY")
-COSMOS_DB_NAME = os.environ.get("COSMOS_DATABASE_NAME")
+CosmosURL = os.environ.get("CosmosURL")
+CosmosKey = os.environ.get("CosmosKey")
+COSMOS_DB_NAME = os.environ.get("CosmosDatabaseName")
 
-PINECONE_API_KEY=os.environ.get("PINECONE_API_KEY")
-PINECONE_ENV=os.environ.get("PINECONE_ENV")
+PineconeAPIKey=os.environ.get("PineconeAPIKey")
+PineconeEnv=os.environ.get("PineconeEnv")
 
-TVDB_KEY = os.environ.get("TVDB_KEY")
+TVDBKey = os.environ.get("TVDBKey")
 
 CACHES = {
     "default": {
@@ -214,8 +216,9 @@ CACHES = {
 
 DATABASE_NAME = "ConversationsDB"
 
-COSMOS_HANDLER = CosmosHandler(COSMOS_KEY, COSMOS_URL, DATABASE_NAME)
+COSMOS_HANDLER = CosmosHandler(CosmosKey, CosmosURL, DATABASE_NAME)
 
+# TODO: MODEL_DEPLOYMENTS should probably be an environmental variable
 MODEL_DEPLOYMENTS = {
     'gpt-3.5-turbo': 'gpt-35-turbo-caeast',  # Azure sometimes uses gpt-35-turbo
     'gpt-4': 'gpt-4-default-caeast',
@@ -223,20 +226,20 @@ MODEL_DEPLOYMENTS = {
 }
 
 OAI_HANDLER = OAIAzureServiceHandler(
-    azure_openai_key=AZURE_OPENAI_KEY,
-    azure_openai_endpoint=AZURE_OPENAI_ENDPOINT,
-    model_deployments=MODEL_DEPLOYMENTS
+    AzureOpenAIKey,
+    AzureOpenAIEndpoint,
+    MODEL_DEPLOYMENTS
 )
 
 # Pinecone Configuration
 PC_HANDLER = PineconeManager(
     'sa-items2',
-    PINECONE_API_KEY,
-    PINECONE_ENV
+    PineconeAPIKey,
+    PineconeEnv
 )
 
 # TVDB Handler Initialization
-TVDB_HANDLER = TVDBHandler(TVDB_KEY)
+TVDB_HANDLER = TVDBHandler(TVDBKey)
 
 # Open Library Handler
 OL_HANDLER = OpenLibraryHandler()

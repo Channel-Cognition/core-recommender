@@ -29,11 +29,11 @@ class Suggestion:
         return messages
 
     def process_llm_call(self):
-        openai.api_key = settings.AZURE_OPENAI_KEY
-        openai.api_base = settings.AZURE_OPENAI_ENDPOINT
+        openai.api_key = settings.AzureOpenAIKey
+        openai.api_base = settings.AzureOpenAIEndpoint
         openai.api_type = 'azure'
         openai.api_version = '2023-05-15'  # put in .env?
-        deployment_name = settings.GPT35_DEPLOY_NAME
+        deployment_name = settings.GPT35DeployName
         messages = self.build_message()
         import time
         start = time.time()
