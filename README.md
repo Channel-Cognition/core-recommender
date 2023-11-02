@@ -3,6 +3,28 @@
 # Overview
 Core-Recommender is an API that enables users to receive movie recommendations. With this API, users can search for and discover films that align with their preferences. Core-Recommender provides film recommendations that facilitate users in finding movies that match their tastes.
 
+# Setup
+If need be, install helm (this may require elevated privileges, and there are alternatives to choco):
+
+```console
+choco install kubernetes-helm
+```
+
+Update the Helm configuration so we can use/install akv2k8s and then install it:
+
+```console
+helm repo add spv-charts http://charts.spvapi.no
+helm repo update
+helm install akv2k8s spv-charts/akv2k8s --namespace akv2k8s --create-namespace
+```
+
+We need to give akv2k8s access to our key vault. To do so, we first must create a service principle, which is an Azure resource:
+
+```console
+az ad sp create-for-rbac --name akv2k8s-access-sp --skip-assignment
+```
+
+
 
 # Requirements
     Python 3.9+
@@ -88,9 +110,30 @@ Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 
 # Quickstart: cloud
 
+If necessary, build the wheel file in the chancog directory
+
+```console
+set BUILD_SOURCEBRANCHNAME=dev
+```
+Windows Powershell:
+
+```console
+$env:BUILD_SOURCEBRANCHNAME = "dev"
+```
+
+In the chancog repo, run
+```console
+python setup.py clean --all
+python setup.py bdist_wheel
+```
+
+Copy the wheel file from/chancog/dist into /ccgenerate/wheels
+Check that the name of the wheel file in Dockers is the same as in /wheels
+
+Switch back to the core-recommender/recommnder directory. Make sure you have a complete .env file at that location. Then, build and run the Dockerfile:
+
 ```console
 docker build --no-cache --network host -t ccsa_recommend .
-docker run -d -p 8000:8000 ccsa_recommend
 ```
 
 ```console
