@@ -24,7 +24,37 @@ We need to give akv2k8s access to our key vault. To do so, we first must create 
 az ad sp create-for-rbac --name akv2k8s-access-sp --skip-assignment
 ```
 
+This will print out info like this if it's successful (the actual values are redacted, but can be obtained through the Azure portal, too):
 
+{
+  "appId": "",
+  "displayName": "",
+  "password": "",
+  "tenant": ""
+}
+
+```console
+kubectl create secret generic akv2k8s-secret --from-literal=clientid=<appId> --from-literal=clientsecret=<password> --namespace akv2k8s
+```
+
+az keyvault set-policy --name sa-env-dev-useast --spn <AppId> --secret-permissions get list
+
+
+If necessary, list the appId again:
+
+```console
+az ad sp list --filter "displayName eq 'akv2k8s-access-sp'" --query "[].appId" -o tsv
+```
+
+```console
+az keyvault set-policy --name sa-env-dev-useast --spn <appId> --secret-permissions get list
+```
+
+set up akv2k8s to use the secrets. If my understanding is correct, the following command only needs to be run once (akv2k8s will now continually sync with the values in the Azure key vault, including if you change them through the web portal):
+
+```console
+kubectl apply -f azurekeyvaultsecrets.yaml
+```
 
 # Requirements
     Python 3.9+
@@ -81,7 +111,7 @@ Navigate to: http://localhost:8000/api/docs/
 WARNING: The .env file should only be used for local dev. It is present in both .gitignore and .dockerignore.
 
 # Quickstart: cloud (once only)
-TBD
+TODO: fold this info into what's above
 
 ```console
 az login
@@ -139,14 +169,21 @@ docker build --no-cache --network host -t ccsa_recommend .
 ```console
 az login
 az acr login --name chancog
-docker tag ccsa_recommend:latest chancog.azurecr.io/ccsa_recommend:v0.1.2
-docker push chancog.azurecr.io/ccsa_recommend:v0.1.2
+docker tag ccsa_recommend:latest chancog.azurecr.io/ccsa_recommend:v0.1.3
+docker push chancog.azurecr.io/ccsa_recommend:v0.1.3
 ```
 
-Modify deployment.yaml to have the same name and version, then deploy:
+Deploy:
 
 ```console
-kubectl apply -f deployment.yaml
+kubectl apply -f ccsa-recommend-deployment.yaml
+kubectl apply -f ccsa-recommend-service.yaml
+```
+
+If necessary, you can force a deployment (this may be needed if you have rebuilt and pushed a Docker image, but not renamed it, and in other scenarios):
+
+```console
+kubectl rollout restart deployment/ccsa-recommend-deployment
 ```
 
 Get info about the services:
@@ -163,6 +200,7 @@ kubernetes               ClusterIP      10.0.0.1       <none>           443/TCP 
 In this example, the swagger documentation should be viewable here:
 
 http://20.253.217.145/api/docs/
+20.246.134.143
 
 Use the following commands when needed (kubernetes does nothing if deployment.yaml is unchanged, even if the image has been changed):
 

@@ -12,10 +12,10 @@ def run_sandbox():
     fast_dev = False
 
     # Cosmos configuration and instantiation
-    CosmosURL = settings.CosmosURL
-    CosmosKey = settings.CosmosKey
+    COSMOS_URL = settings.COSMOS_URL
+    COSMOS_KEY = settings.COSMOS_KEY
     DATABASE_NAME = 'ConversationsDB'
-    cosmos_handler = CosmosHandler(CosmosKey, CosmosURL, DATABASE_NAME)
+    cosmos_handler = CosmosHandler(COSMOS_KEY, COSMOS_URL, DATABASE_NAME)
 
     model_deployments = {
         'gpt-3.5-turbo': 'gpt-35-turbo-caeast',  # Azure sometimes uses gpt-35-turbo
@@ -24,20 +24,20 @@ def run_sandbox():
     }
 
     oai_handler = OAIAzureServiceHandler(
-        AzureOpenAIKey=settings.AzureOpenAIKey,
-        AzureOpenAIEndpoint=settings.AzureOpenAIEndpoint,
+        AZURE_OPENAI_KEY=settings.AZURE_OPENAI_KEY,
+        AZURE_OPENAI_ENDPOINT=settings.AZURE_OPENAI_ENDPOINT,
         model_deployments=model_deployments
     )
 
     # Pinecone Configuration
     pc_handler = PineconeManager(
         'sa-items2',
-        settings.PineconeAPIKey,
-        settings.PineconeEnv
+        settings.PINECONE_API_KEY,
+        settings.PINECONE_API_ENV
     )
 
     # TVDB Handler Initialization
-    tvdb_handler = TVDBHandler(config("TVDBKey"))
+    tvdb_handler = TVDBHandler(config("TVDB_KEY"))
 
     # Open Library Handler
     ol_handler = OpenLibraryHandler()

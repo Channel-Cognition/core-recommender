@@ -20,11 +20,11 @@ from chancog.llm import PineconeManager
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = os.environ.get('SecretKey')
+SECRET_KEY = os.environ.get('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 
-ENV_ALLOWED_HOST = os.environ.get("EnvAllowedHost")
+ENV_ALLOWED_HOST = os.environ.get("ENV_ALLOWED_HOST")
 ALLOWED_HOSTS = []
 if ENV_ALLOWED_HOST:
     ALLOWED_HOSTS = [ ENV_ALLOWED_HOST]
@@ -90,11 +90,11 @@ WSGI_APPLICATION = "recommender.wsgi.application"
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
-DB_USERNAME = os.environ.get("PostgresUser")
-DB_PASSWORD = os.environ.get("PostgresPassword")
-DB_DATABASE = os.environ.get("PostgresDB")
-DB_HOST = os.environ.get("PostgresHost")
-DB_PORT = os.environ.get("PostgresPort")
+DB_USERNAME = os.environ.get("POSTGRES_USER")
+DB_PASSWORD = os.environ.get("POSTGRES_PASSWORD")
+DB_DATABASE = os.environ.get("POSTGRES_DB")
+DB_HOST = os.environ.get("POSTGRES_HOST")
+DB_PORT = os.environ.get("POSGRES_PORT")
 DB_IS_AVAIL = all([
     DB_USERNAME,
     DB_PASSWORD,
@@ -102,7 +102,7 @@ DB_IS_AVAIL = all([
     DB_HOST,
     DB_PORT
 ])
-DBIgnoreSSL=os.environ.get("DBIgnoreSSL") == "true"
+DB_IGNORE_SSL =os.environ.get("DB_IGNORE_SSL") == "true"
 
 if DB_IS_AVAIL:
     DATABASES = {
@@ -115,7 +115,7 @@ if DB_IS_AVAIL:
             'PORT': DB_PORT,
         }
     }
-    if not DBIgnoreSSL:
+    if not DB_IGNORE_SSL:
          DATABASES["default"]["OPTIONS"] = {
             "sslmode": "require"
          }
@@ -193,18 +193,18 @@ GREETING = "Hello, I can help suggest a new movie to watch. What are you looking
 
 TRUNCATED_FRAMING = framing
 
-AzureOpenAIKey=os.environ.get("AzureOpenAIKey")
-AzureOpenAIEndpoint=os.environ.get("AzureOpenAIEndpoint")
-GPT35DeployName=os.environ.get("GPT35DeployName")
+AZURE_OPENAI_KEY=os.environ.get("AZURE_OPENAI_KEY")
+AZURE_OPENAI_ENDPOINT=os.environ.get("AZURE_OPENAI_ENDPOINT")
+GPT_35_DEPLOY_NAME =os.environ.get("GPT_35_DEPLOY_NAME")
 
-CosmosURL = os.environ.get("CosmosURL")
-CosmosKey = os.environ.get("CosmosKey")
-COSMOS_DB_NAME = os.environ.get("CosmosDatabaseName")
+COSMOS_URL = os.environ.get("COSMOS_URL")
+COSMOS_KEY = os.environ.get("COSMOS_KEY")
+COSMOS_DB_NAME = os.environ.get("COSMOS_DB_NAME")
 
-PineconeAPIKey=os.environ.get("PineconeAPIKey")
-PineconeEnv=os.environ.get("PineconeEnv")
+PINECONE_API_KEY=os.environ.get("PINECONE_API_KEY")
+PINECONE_API_ENV=os.environ.get("PINECONE_API_ENV")
 
-TVDBKey = os.environ.get("TVDBKey")
+TVDB_KEY = os.environ.get("TVDB_KEY")
 
 CACHES = {
     "default": {
@@ -216,7 +216,7 @@ CACHES = {
 
 DATABASE_NAME = "ConversationsDB"
 
-COSMOS_HANDLER = CosmosHandler(CosmosKey, CosmosURL, DATABASE_NAME)
+COSMOS_HANDLER = CosmosHandler(COSMOS_KEY, COSMOS_URL, DATABASE_NAME)
 
 # TODO: MODEL_DEPLOYMENTS should probably be an environmental variable
 MODEL_DEPLOYMENTS = {
@@ -226,20 +226,20 @@ MODEL_DEPLOYMENTS = {
 }
 
 OAI_HANDLER = OAIAzureServiceHandler(
-    AzureOpenAIKey,
-    AzureOpenAIEndpoint,
+    AZURE_OPENAI_KEY,
+    AZURE_OPENAI_ENDPOINT,
     MODEL_DEPLOYMENTS
 )
 
 # Pinecone Configuration
 PC_HANDLER = PineconeManager(
     'sa-items2',
-    PineconeAPIKey,
-    PineconeEnv
+    PINECONE_API_KEY,
+    PINECONE_API_ENV
 )
 
 # TVDB Handler Initialization
-TVDB_HANDLER = TVDBHandler(TVDBKey)
+TVDB_HANDLER = TVDBHandler(TVDB_KEY)
 
 # Open Library Handler
 OL_HANDLER = OpenLibraryHandler()

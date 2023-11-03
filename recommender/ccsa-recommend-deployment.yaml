@@ -1,0 +1,126 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ccsa-recommend-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ccsa-recommend
+  template:
+    metadata:
+      labels:
+        app: ccsa-recommend
+    spec:
+      imagePullSecrets:
+        - name: acr-credentials
+      containers:
+        - name: ccsa-recommend
+          image: chancog.azurecr.io/ccsa_recommend:v0.1.3
+          imagePullPolicy: Always  # Ensures the latest image is always pulled
+          ports:
+            - containerPort: 8000
+          env:  # Specify each environment variable individually
+            - name: ENV_ALLOWED_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: env-allowed-host
+                  key: ENV_ALLOWED_HOST
+            - name: DEBUG
+              valueFrom:
+                secretKeyRef:
+                  name: debug
+                  key: DEBUG
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-user
+                  key: POSTGRES_USER
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-password
+                  key: POSTGRES_PASSWORD
+            - name: POSTGRES_DB
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-db
+                  key: POSTGRES_DB
+            - name: POSTGRES_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-host
+                  key: POSTGRES_HOST
+            - name: POSTGRES_PORT
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-port
+                  key: POSTGRES_PORT
+            - name: GPT35_DEPLOY_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: gpt35-deploy-name
+                  key: GPT35_DEPLOY_NAME
+            - name: SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: secret-key
+                  key: SECRET_KEY
+            - name: DB_IGNORE_SSL
+              valueFrom:
+                secretKeyRef:
+                  name: db-ignore-ssl
+                  key: DB_IGNORE_SSL
+            - name: COSMOS_URL
+              valueFrom:
+                secretKeyRef:
+                  name: cosmos-url
+                  key: COSMOS_URL
+            - name: COSMOS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: cosmos-key
+                  key: COSMOS_KEY
+            - name: COSMOS_DB_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: cosmos-db-name
+                  key: COSMOS_DB_NAME
+            - name: AZURE_OPENAI_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: azure-openai-key
+                  key: AZURE_OPENAI_KEY
+            - name: AZURE_OPENAI_ENDPOINT
+              valueFrom:
+                secretKeyRef:
+                  name: azure-openai-endpoint
+                  key: AZURE_OPENAI_ENDPOINT
+            - name: TVDB_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: tvdb-key
+                  key: TVDB_KEY
+            - name: PINECONE_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: pinecone-api-key
+                  key: PINECONE_API_KEY
+            - name: PINECONE_ENV
+              valueFrom:
+                secretKeyRef:
+                  name: pinecone-env
+                  key: PINECONE_ENV
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ccsa-recommend-service
+spec:
+  selector:
+    app: ccsa-recommend
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8000
+  type: LoadBalancer
