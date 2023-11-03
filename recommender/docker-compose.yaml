@@ -4,7 +4,7 @@ services:
   web:
     image: ccsa_recommend:latest
     env_file:
-      - .env  # Path to your .env file
+      - .env.loc
     ports:
       - "8000:8000"
     depends_on:
@@ -15,7 +15,7 @@ services:
   postgres_db:
     image: postgres:latest
     env_file:
-      - .env  # Path to your .env file
+      - .env.loc
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:

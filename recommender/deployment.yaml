@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ccsa-recommend-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ccsa-recommend
+  template:
+    metadata:
+      labels:
+        app: ccsa-recommend
+    spec:
+      imagePullSecrets:
+      - name: acr-credentials
+      containers:
+        - name: web
+          image: chancog.azurecr.io/ccsa_recommend:v0.1.3
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8000
+          envFrom:                         # Add this block
+          - configMapRef:
+              name: ccsa-recommend-env     # Name of your ConfigMap

@@ -24,92 +24,92 @@ spec:
             - name: ENV_ALLOWED_HOST
               valueFrom:
                 secretKeyRef:
-                  name: env-allowed-host
+                  name: my-app-secrets
                   key: ENV_ALLOWED_HOST
             - name: DEBUG
               valueFrom:
                 secretKeyRef:
-                  name: debug
+                  name: my-app-secrets
                   key: DEBUG
             - name: POSTGRES_USER
               valueFrom:
                 secretKeyRef:
-                  name: postgres-user
+                  name: my-app-secrets
                   key: POSTGRES_USER
             - name: POSTGRES_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: postgres-password
+                  name: my-app-secrets
                   key: POSTGRES_PASSWORD
             - name: POSTGRES_DB
               valueFrom:
                 secretKeyRef:
-                  name: postgres-db
+                  name: my-app-secrets
                   key: POSTGRES_DB
             - name: POSTGRES_HOST
               valueFrom:
                 secretKeyRef:
-                  name: postgres-host
+                  name: my-app-secrets
                   key: POSTGRES_HOST
             - name: POSTGRES_PORT
               valueFrom:
                 secretKeyRef:
-                  name: postgres-port
+                  name: my-app-secrets
                   key: POSTGRES_PORT
             - name: GPT35_DEPLOY_NAME
               valueFrom:
                 secretKeyRef:
-                  name: gpt35-deploy-name
+                  name: my-app-secrets
                   key: GPT35_DEPLOY_NAME
             - name: SECRET_KEY
               valueFrom:
                 secretKeyRef:
-                  name: secret-key
+                  name: my-app-secrets
                   key: SECRET_KEY
             - name: DB_IGNORE_SSL
               valueFrom:
                 secretKeyRef:
-                  name: db-ignore-ssl
+                  name: my-app-secrets
                   key: DB_IGNORE_SSL
             - name: COSMOS_URL
               valueFrom:
                 secretKeyRef:
-                  name: cosmos-url
+                  name: my-app-secrets
                   key: COSMOS_URL
             - name: COSMOS_KEY
               valueFrom:
                 secretKeyRef:
-                  name: cosmos-key
+                  name: my-app-secrets
                   key: COSMOS_KEY
             - name: COSMOS_DB_NAME
               valueFrom:
                 secretKeyRef:
-                  name: cosmos-db-name
+                  name: my-app-secrets
                   key: COSMOS_DB_NAME
             - name: AZURE_OPENAI_KEY
               valueFrom:
                 secretKeyRef:
-                  name: azure-openai-key
+                  name: my-app-secrets
                   key: AZURE_OPENAI_KEY
             - name: AZURE_OPENAI_ENDPOINT
               valueFrom:
                 secretKeyRef:
-                  name: azure-openai-endpoint
+                  name: my-app-secrets
                   key: AZURE_OPENAI_ENDPOINT
             - name: TVDB_KEY
               valueFrom:
                 secretKeyRef:
-                  name: tvdb-key
+                  name: my-app-secrets
                   key: TVDB_KEY
             - name: PINECONE_API_KEY
               valueFrom:
                 secretKeyRef:
-                  name: pinecone-api-key
+                  name: my-app-secrets
                   key: PINECONE_API_KEY
             - name: PINECONE_ENV
               valueFrom:
                 secretKeyRef:
-                  name: pinecone-env
+                  name: my-app-secrets
                   key: PINECONE_ENV
 ---
 apiVersion: v1
