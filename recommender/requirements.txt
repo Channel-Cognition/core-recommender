@@ -22,3 +22,4 @@ pytest-mock
 tvdb_v4_official
 google-api-python-client
 git+https://github.com/internetarchive/openlibrary-client.git
+git+https://github.com/MichaelHoltonPrice/chancog.git
