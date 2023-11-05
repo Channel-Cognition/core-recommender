@@ -167,3 +167,6 @@ cython_debug/
 #.idea/
 
 recommender/wheels
+
+.env.loc
+.env.stage
