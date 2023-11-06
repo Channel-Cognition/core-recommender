@@ -160,8 +160,6 @@ REST_FRAMEWORK = {
 }
 AUTH_USER_MODEL = 'user.User'
 
-# TODO remove this if the Website already hosted
-CORS_ALLOW_ALL_ORIGINS = True
 
 # DEFAULT SNIPPET ONBOARDING
 
@@ -243,5 +241,9 @@ TVDB_HANDLER = TVDBHandler(TVDB_KEY)
 
 # Open Library Handler
 OL_HANDLER = OpenLibraryHandler()
-
 IS_FAST_DEV = str(os.getenv('IS_FAST_DEV')) == "true"
+
+CORS_ALLOWED_ORIGINS = os.environ.get("ENV_CORS_ALLOWED_ORIGINS").split(' ')
+CORS_ALLOW_CREDENTIALS = str(os.environ.get("ENV_CORS_ALLOW_CREDENTIALS")) == "true"
+CORS_ALLOW_HEADERS = os.environ.get("ENV_CORS_ALLOW_HEADERS").split(' ')
+CORS_ALLOW_METHODS = os.environ.get("ENV_CORS_ALLOW_METHODS").split(' ')
