@@ -212,9 +212,7 @@ CACHES = {
     }
 }
 
-DATABASE_NAME = "ConversationsDB"
-
-COSMOS_HANDLER = CosmosHandler(COSMOS_KEY, COSMOS_URL, DATABASE_NAME)
+COSMOS_HANDLER = CosmosHandler(COSMOS_KEY, COSMOS_URL, COSMOS_DB_NAME)
 
 # TODO: MODEL_DEPLOYMENTS should probably be an environmental variable
 MODEL_DEPLOYMENTS = {
