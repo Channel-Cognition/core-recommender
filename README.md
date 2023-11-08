@@ -6,11 +6,12 @@ Core-Recommender is an API that enables users to receive movie recommendations. 
 # Local dev
 ## Local dev setup
 TODO: We may need exactly Python 3.10
-Install postgres and make a new database:
+Install postgres, then make the database:
 
 ```console
 createdb -U postgres sadev
 ```
+
 
 Make a new user:
 
@@ -18,6 +19,8 @@ Make a new user:
 psql -U postgres
 CREATE USER <db_user> WITH PASSWORD '<password>';
 GRANT ALL PRIVILEGES ON DATABASE sadev TO <db_user>;
+GRANT USAGE ON SCHEMA public TO <db_user>;
+ALTER DATABASE sadev OWNER TO <db_user>;
 ```
 
 Check that postgres is ready:
@@ -57,6 +60,10 @@ COSMOS_URL
 COSMOS_KEY
 COSMOS_DB_NAME
 TVDB_KEY
+AZURE_OPENAI_KEY
+AZURE_OPENAI_ENDPOINT
+
+Optionally, set IS_FAST_DEV (it will be True if the value is exactly true, and False otherwise).
 
 ## Local dev cycle
 If necessary, activate the virtual environment:
@@ -65,14 +72,19 @@ If necessary, activate the virtual environment:
 python -m venv venv
 ```
 
-If necessary, migrate:
+If necessary, make migrations:
 
 ```console
 python manage.py makemigrations
-python manage.py migrate
 ```
 
+If necessary, make migrate:
+
+```console
+python manage.py migrate
+```
 Run the local server:
+
 
 ```console
 python manage.py runserver
