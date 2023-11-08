@@ -62,6 +62,8 @@ COSMOS_DB_NAME
 TVDB_KEY
 AZURE_OPENAI_KEY
 AZURE_OPENAI_ENDPOINT
+PINECONE_API_KEY
+PINECONE_API_ENV
 
 Optionally, set IS_FAST_DEV (it will be True if the value is exactly true, and False otherwise).
 

@@ -15,7 +15,7 @@ requests
 pinecone-client
 gunicorn
 python-dotenv
-openai
+openai==0.28.1
 azure-cosmos
 pytest
 pytest-mock
