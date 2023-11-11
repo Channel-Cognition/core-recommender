@@ -1,10 +1,16 @@
 from chancog.llm import OAIAzureServiceHandler
+from chancog.sagenerate.cosmos import CosmosHandler
+from chancog.sagenerate.azfunc import smart_match_and_add
+from chancog.sagenerate.tvdb import TVDBHandler
+from chancog.sagenerate.openlibrary import OpenLibraryHandler
+from chancog.llm import PineconeManager
 from decouple import config
 from local_llm import calc_gpt_cost, count_diagnostics_tokens
 from local_llm import OpenAIHandler
 from chancog.entities import Conversation, Snippet
 import json
 from pprint import pprint
+from chancog.sagenerate.azfunc import rag_matcher
 
 model_deployments = {
     'gpt-3.5-turbo': 'gpt-35-turbo-caeast', # Azure sometimes uses gpt-35-turbo
@@ -26,6 +32,24 @@ dumb_model_base = 'gpt-3.5-turbo-1106'
 smart_model_base = 'gpt-4-1106-preview'
 
 oai_handler_base = OpenAIHandler(config("OPENAI_API_KEY"))
+
+# Pinecone Configuration
+pc_handler = PineconeManager(
+    config('PINECONE_ITEMS_INDEX_NAME'),
+    config('PINECONE_API_KEY'),
+    config('PINECONE_API_ENV')
+)
+
+cosmos_handler = CosmosHandler(config('COSMOS_KEY'),
+                               config('COSMOS_URL'),
+                               config('COSMOS_DB_NAME'))
+
+
+# TVDB Handler Initialization
+tvdb_handler = TVDBHandler(config("TVDB_KEY"))
+
+# Open Library Handler
+ol_handler = OpenLibraryHandler()
 
 framing = "You are an assistant helping the user find new things, which could "
 framing += "be anything from a new movie or TV show to watch to a pair of shoes to buy. "
@@ -69,7 +93,7 @@ def main():
         #llm_message = lorem.sentence()
         messages = conversation.build_open_ai_messages()
         llm_message, _ = oai_handler_base.call_gpt(messages,
-                                                   model=smart_model_base,
+                                                   model=dumb_model_base,
                                                    json_mode=True)
         try:
             parsed_json = json.loads(llm_message)
@@ -81,8 +105,25 @@ def main():
         conversation.add_snippet(Snippet('llm_message', llm_message))
         #snippet_index += 1
 
-        print('----')
-        pprint(parsed_json['new_items'])
+        # Loop over entries in new_items to do a Pinecone vector search
+        for suggestion in parsed_json['new_items']:
+            print('******************')
+            'LLM suggestion:'
+            pprint(suggestion)
+            item_info, diagnostics = rag_matcher(suggestion,
+                                                 oai_handler_base,
+                                                 oai_handler_azure,
+                                                 pc_handler,
+                                                 cosmos_handler.containers['items'],
+                                                 num_matches=3)
+            'Our match:'
+            pprint(item_info)
+            print('******************')
+    input_tokens, output_tokens = count_diagnostics_tokens(diagnostics)
+    cost = calc_gpt_cost(input_tokens, output_tokens, dumb_model_base)
+    print('Final cost:')
+    print(cost)
 
+       
 if __name__ == "__main__":
     main()
