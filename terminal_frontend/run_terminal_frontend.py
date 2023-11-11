@@ -3,7 +3,8 @@ from decouple import config
 from local_llm import calc_gpt_cost, count_diagnostics_tokens
 from local_llm import OpenAIHandler
 from chancog.entities import Conversation, Snippet
-import lorem
+import json
+from pprint import pprint
 
 model_deployments = {
     'gpt-3.5-turbo': 'gpt-35-turbo-caeast', # Azure sometimes uses gpt-35-turbo
@@ -22,7 +23,7 @@ oai_handler_azure = OAIAzureServiceHandler(
 
 # These
 dumb_model_base = 'gpt-3.5-turbo-1106'
-smart_model_azure = 'gpt-4-1106-preview'
+smart_model_base = 'gpt-4-1106-preview'
 
 oai_handler_base = OpenAIHandler(config("OPENAI_API_KEY"))
 
@@ -65,10 +66,23 @@ def main():
         conversation.add_snippet(Snippet('user_message', user_message))
         #snippet_index += 1
 
-        llm_message = lorem.sentence()
-        print('Assistant: ' + llm_message + '\n')
+        #llm_message = lorem.sentence()
+        messages = conversation.build_open_ai_messages()
+        llm_message, _ = oai_handler_base.call_gpt(messages,
+                                                   model=smart_model_base,
+                                                   json_mode=True)
+        try:
+            parsed_json = json.loads(llm_message)
+        except json.JSONDecodeError as e:
+            print("JSON decoding failed:", e)
+        except Exception as e:
+            raise(e)
+        print('Assistant: ' + parsed_json['text'] + '\n')
         conversation.add_snippet(Snippet('llm_message', llm_message))
         #snippet_index += 1
+
+        print('----')
+        pprint(parsed_json['new_items'])
 
 if __name__ == "__main__":
     main()
