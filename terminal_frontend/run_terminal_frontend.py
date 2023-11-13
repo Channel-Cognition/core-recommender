@@ -1,4 +1,4 @@
-from chancog.llm import OAIAzureServiceHandler
+from chancog.llm import OpenAIHandler
 from chancog.cosmos import CosmosHandler
 from chancog.sagenerate.azfunc import smart_match_and_add
 from chancog.sagenerate.tvdb import TVDBHandler
@@ -6,7 +6,6 @@ from chancog.sagenerate.openlibrary import OpenLibraryHandler
 from chancog.llm import PineconeManager
 from decouple import config
 from local_llm import calc_gpt_cost, count_diagnostics_tokens
-from local_llm import OpenAIHandler
 from chancog.entities import Conversation, Snippet
 import json
 from pprint import pprint
@@ -22,9 +21,9 @@ model_deployments = {
         
 dumb_model_azure = 'gpt-3.5-turbo'
 smart_model_azure = 'gpt-4'
-oai_handler_azure = OAIAzureServiceHandler(
-    azure_openai_key=config("AZURE_OPENAI_KEY"),
-    azure_openai_endpoint=config("AZURE_OPENAI_ENDPOINT"),
+oai_handler_azure = OpenAIHandler(
+    config("AZURE_OPENAI_KEY"),
+    azure_endpoint=config("AZURE_OPENAI_ENDPOINT"),
     model_deployments=model_deployments
 )
 
@@ -43,7 +42,8 @@ pc_handler = PineconeManager(
 
 cosmos_handler = CosmosHandler(config('COSMOS_KEY'),
                                config('COSMOS_URL'),
-                               config('COSMOS_DB_NAME'))
+                               config('COSMOS_DB_NAME'),
+                               container_names=['items'])
 
 
 # TVDB Handler Initialization
@@ -93,24 +93,22 @@ def main():
             print("Exiting the chat bot...")
             break
 
-        conversation, success = process_new_user_message(conversation,
-                                                         user_message,
-                                                         cosmos_handler,
-                                                         oai_handler_base,
-                                                         dumb_model_base,
-                                                         pc_handler,
-                                                         tvdb_handler,
-                                                         ol_handler)
+        success, conversation, item_infos, text = process_new_user_message(conversation,
+                                                                           user_message,
+                                                                           cosmos_handler,
+                                                                           oai_handler_base,
+                                                                           oai_handler_azure,
+                                                                           dumb_model_base,
+                                                                           pc_handler,
+                                                                           tvdb_handler,
+                                                                           ol_handler)
+                  
+            
 
-
-
-        llm_message = conversation.snippets[-1].text
-        print('**************')
-        parsed_json = json.loads(llm_message)
-        print('Assistant:\n')
-        pprint(llm_message)
-        print('\n')
-        #print('Assistant: ' + parsed_json + '\n')
+        print('Assistant:' + text + '\n')
+        print('----')
+        for display_info in item_infos:
+            pprint(display_info)
 
 if __name__ == "__main__":
     main()
