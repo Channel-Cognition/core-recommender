@@ -1,5 +1,5 @@
 from django.conf import settings
-from chancog.sagenerate.cosmos import CosmosHandler
+from chancog.cosmos import CosmosHandler
 from chancog.sagenerate.endpoints import process_new_user_message
 from chancog.llm import OAIAzureServiceHandler
 from chancog.sagenerate.tvdb import TVDBHandler

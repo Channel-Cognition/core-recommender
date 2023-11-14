@@ -1,5 +1,4 @@
 from django.conf import settings
-from chancog.sagenerate.cosmos import CosmosHandler
 
 
 

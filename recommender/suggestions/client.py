@@ -1,6 +1,6 @@
 from django.conf import settings
 
-from chancog.sagenerate.endpoints import process_new_user_message
+from chancog.sagenerate.processing import process_new_user_message
 
 
 def perform_search(query, convo_id):
