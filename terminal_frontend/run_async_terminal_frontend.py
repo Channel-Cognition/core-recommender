@@ -75,7 +75,9 @@ async def process_callback(action, data_tuple):
         print('Assistant: ' + text + '\n')
     elif action == 'add_prelim_suggestion':
         cosmos_item_info, display_item_info, metric, diagnostics = data_tuple
-        display_item_info = build_display_item_info(cosmos_item_info)
+        pprint(display_item_info)
+    elif action == 'add_final_suggestion':
+        display_item_info, diagnostics = data_tuple
         pprint(display_item_info)
     else:
         raise ValueError(f'Unrecognized action = {action}')
