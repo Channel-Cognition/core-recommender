@@ -3,14 +3,6 @@ This README explains how to run the terminal frontends for Suggest Anything.
 
 It assumes use of the dev branch of both core-recommendar and chancog.
 
-```console
-cd core-recommender/terminal_frontend
-python -m venv venv
-venv\Scripts\activate
-pip install -r requirements.txt
-```
-
-
 # Installations
 Clone the dev branch of core-recommender:
 
