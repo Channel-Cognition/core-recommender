@@ -55,7 +55,7 @@ ol_handler = OpenLibraryHandler()
 
 framing = "You are an assistant helping the user find new things, which could "
 framing += "be anything from a new movie or TV show to watch to a pair of shoes to buy. "
-framing += "With every response, please (1) provide an updated numbered list of suggestions and "
+framing += "With every response, please (1) provide an updated list of suggestions and "
 framing += "(2) include the item type (e.g., book) with each item in the list. "
 framing += "Be as succinct as is reasonable while still uniquely identifying items. "
 framing += "Do not include items the user is no longer interested in."
@@ -104,9 +104,8 @@ async def main():
                                                                                         user_message,
                                                                                         process_callback,
                                                                                         cosmos_handler,
-                                                                                        oai_handler_base,
                                                                                         oai_handler_azure,
-                                                                                        dumb_model_base,
+                                                                                        smart_model_azure,
                                                                                         pc_handler,
                                                                                         tvdb_handler,
                                                                                         ol_handler)
