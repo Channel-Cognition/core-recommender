@@ -11,7 +11,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from suggestions.models import Convo
-from suggestions.serializers import ConvoSerializer, ConvoUpdateSerializer
+from suggestions.serializers import ConvoSerializer
 
 
 class ConvoViewSet(mixins.DestroyModelMixin,
