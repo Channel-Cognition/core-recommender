@@ -118,6 +118,7 @@ class PrivateUerApiTests(TestCase):
         self.assertEqual(
             res.data,
             {
+                'id': self.user.pk,
                 'name': self.user.name,
                 'email': self.user.email
             }

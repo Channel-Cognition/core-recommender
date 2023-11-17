@@ -98,8 +98,9 @@ class SearchListView(APIView):
         items = results["MESSAGE_DATA"]["items"]
         if items:
             for item in items:
-                image = get_or_create_image_cache(item["thumbnail_url"])
-                item.update({"image":{"image_b64_medium": image["image_b64_medium"]}})
+                if item is not None:
+                    image = get_or_create_image_cache(item["thumbnail_url"])
+                    item.update({"image":{"image_b64_medium": image["image_b64_medium"]}})
         snippets.append({"snippet_type": "LLM MESSAGE", "text": llm_response, "convo": convo_existing,
                          "pydantic_text": items})
 
