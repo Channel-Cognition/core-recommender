@@ -6,7 +6,7 @@ from chancog.sagenerate.openlibrary import OpenLibraryHandler
 from chancog.llm import PineconeManager
 from decouple import config
 from local_llm import calc_gpt_cost, count_diagnostics_tokens
-from chancog.entities import Conversation, Snippet
+from chancog.entities import MatchConversation, Snippet
 import json
 from pprint import pprint
 from chancog.sagenerate.azfunc import rag_matcher
@@ -78,7 +78,7 @@ greeting = "Hello, what can I suggest for you today?"
 #snippet_index = 0
 
 def main():
-    conversation = Conversation()
+    conversation = MatchConversation()
     conversation.append_snippet(Snippet('framing', framing))
     conversation.append_snippet(Snippet('greeting', greeting))
 
@@ -93,21 +93,42 @@ def main():
             print("Exiting the chat bot...")
             break
 
-        success, conversation, item_infos, text = process_new_user_message(conversation,
-                                                                           user_message,
-                                                                           cosmos_handler,
-                                                                           oai_handler_azure,
-                                                                           smart_model_azure,
-                                                                           pc_handler,
-                                                                           tvdb_handler,
-                                                                           ol_handler)
-                  
-            
+        # Message to Maxy:
+        # Inside process_new_user_message, conversation was deep copied to avoid modifying
+        # it inside the method. new_user_snippet, new_llm_snippet, and new_match_bundle
+        # need to be added to the database.
+        success, new_user_snippet, new_llm_snippet, text, item_infos, new_match_bundle =\
+            process_new_user_message(conversation,
+                                     user_message,
+                                     cosmos_handler,
+                                     oai_handler_azure,
+                                     smart_model_azure,
+                                     pc_handler,
+                                     tvdb_handler,
+                                     ol_handler)
 
-        print('Assistant:' + text + '\n')
-        print('----')
-        for display_info in item_infos:
-            pprint(display_info)
+        if not success:
+            print('<Call to process_new_user_message failed.')
+            if new_llm_snippet is None:
+                print('call_gpt seems to have failed')
+            else:
+                print('llm_message for failed resposne is:')
+                print(new_llm_snippet.text)
+        else:
+            # success
+            print('Assistant:' + text + '\n')
+            print('----')
+            if item_infos is None:
+                print('No new suggestions')
+            else:
+                for display_info in item_infos:
+                    pprint(display_info)
+            conversation.append_snippet(new_user_snippet)
+            if new_match_bundle is not None:
+                conversation.append_match_bundle_with_snippet(new_match_bundle)
+            else:
+                conversation.append_snippet(new_llm_snippet)
+
 
 if __name__ == "__main__":
     main()
