@@ -1,0 +1,1 @@
+web: gunicorn recommender.myproject.wsgi --log-file -

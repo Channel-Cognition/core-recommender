@@ -11,8 +11,8 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 import os
 from pathlib import Path
-from chancog.sagenerate.cosmos import CosmosHandler
-from chancog.llm import OAIAzureServiceHandler
+from chancog.cosmos import CosmosHandler
+from chancog.llm import OpenAIHandler
 from chancog.sagenerate.tvdb import TVDBHandler
 from chancog.sagenerate.openlibrary import OpenLibraryHandler
 from chancog.llm import PineconeManager
@@ -213,9 +213,7 @@ CACHES = {
     }
 }
 
-DATABASE_NAME = "ConversationsDB"
-
-COSMOS_HANDLER = CosmosHandler(COSMOS_KEY, COSMOS_URL, DATABASE_NAME)
+COSMOS_HANDLER = CosmosHandler(COSMOS_KEY, COSMOS_URL, COSMOS_DB_NAME)
 
 # TODO: MODEL_DEPLOYMENTS should probably be an environmental variable
 MODEL_DEPLOYMENTS = {
@@ -224,7 +222,7 @@ MODEL_DEPLOYMENTS = {
     'text-embedding-ada-002': 'text-embedding-ada-002-caeast'
 }
 
-OAI_HANDLER = OAIAzureServiceHandler(
+OAI_HANDLER = OpenAIHandler(
     AZURE_OPENAI_KEY,
     AZURE_OPENAI_ENDPOINT,
     MODEL_DEPLOYMENTS

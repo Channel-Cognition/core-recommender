@@ -15,7 +15,7 @@ requests
 pinecone-client
 gunicorn
 python-dotenv
-openai
+openai==0.28.1
 azure-cosmos
 pytest
 pytest-mock
@@ -24,3 +24,4 @@ google-api-python-client
 git+https://github.com/internetarchive/openlibrary-client.git
 django-extensions
 model-mommy
+git+https://github.com/MichaelHoltonPrice/chancog.git

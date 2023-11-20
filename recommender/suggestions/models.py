@@ -6,8 +6,6 @@ from django.db.models.signals import pre_save, post_save
 from django.dispatch import receiver
 from chancog.entities import Snippet as SnippetCosmosDB
 
-from queries.convo import Convo as ConvoCosmosDB
-
 # Create your models here.
 
 
