@@ -53,22 +53,26 @@ class Snippet(models.Model):
         return self.snippet_id
 
 
-@receiver(post_save, sender=Snippet)
-def snippet_post_save(sender, instance, created, *args, **kwargs):
-    # snippet will be saved after mirroring to CosmosDB successfully
-    import time
-    start=time.time()
-    if created:
-        convo_id = str(instance.convo.convo_id)
-        if not ConvoCosmosDB(convo_id=convo_id).is_exist():
-            convo_id = None
-            is_created = ConvoCosmosDB(convo_id=str(instance.convo.convo_id)).create()
-            if is_created:
-                convo_id = str(instance.convo.convo_id)
-        ConvoCosmosDB(convo_id=convo_id).create_snippets([SnippetCosmosDB(
-            snippet_type=instance.snippet_type,
-            text=instance.text, timestamp=instance.created_date)])
-        end=time.time()
-        print("post_save", end-start)
-        return convo_id
+class MatchBundle(models.Model):
+    snippet = models.ForeignKey(Snippet, related_name='match_bundles', on_delete=models.CASCADE)
+
+    created_date = models.DateTimeField(blank=True, null=True, auto_now_add=True)
+    updated_date = models.DateField(blank=True, null=True)
+
+    def __str__(self):
+        return self.snippet_id
+
+
+class ItemMatch(models.Model):
+    match_bundle = models.ForeignKey(MatchBundle, related_name='item_matches', on_delete=models.CASCADE)
+    external_id = models.CharField(max_length=200, null=True, blank=True)
+    quality = models.CharField(max_length=100, null=True, blank=True)
+    details = models.TextField(null=True, blank=True)
+
+    created_date = models.DateTimeField(blank=True, null=True, auto_now_add=True)
+    updated_date = models.DateField(blank=True, null=True)
+
+    def __str__(self):
+        return self.snippet_id
+
 

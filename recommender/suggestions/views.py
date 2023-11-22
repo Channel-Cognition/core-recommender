@@ -1,3 +1,4 @@
+from chancog.sagenerate.processing import get_dummy_suggestions
 from django.conf import settings
 # Create your views here.
 from rest_framework.views import APIView
@@ -13,7 +14,7 @@ from drf_spectacular.utils import (
     OpenApiTypes
 )
 from .client import perform_search
-from .models import Convo, Snippet
+from .models import Convo, Snippet, MatchBundle, ItemMatch
 from .serializers import ConvoSerializer
 
 from utils.resizing_image import get_or_create_image_cache
@@ -43,6 +44,22 @@ from utils.resizing_image import get_or_create_image_cache
 class SearchListView(APIView):
     authentication_classes = (TokenAuthentication,)
     permission_classes = (IsAuthenticated,)
+
+    def _match_bundle_create(self, match_bundle, llm_response):
+
+        snippet = Snippet.objects.get(text=llm_response)
+        obj_match_bundle = MatchBundle.objects.create(snippet=snippet)
+        item_matches = match_bundle.item_matches
+        if item_matches:
+            for item in item_matches:
+                if item:
+                    ItemMatch.objects.create(
+                        match_bundle=obj_match_bundle,
+                        external_id=item.external_id,
+                        quality=item.match_quality,
+                        details=item.details
+
+                    )
 
     def _bulk_create_snippets(self, snippets):
         for snippet in snippets:
@@ -96,14 +113,19 @@ class SearchListView(APIView):
         print("perform_search", end-start)
         llm_response = results["MESSAGE_DATA"]["llm_response"]
         items = results["MESSAGE_DATA"]["items"]
+        match_bundle = results["MESSAGE_DATA"]["match_bundle"]
+
         if items:
             for item in items:
-                image = get_or_create_image_cache(item["thumbnail_url"])
-                item.update({"image":{"image_b64_medium": image["image_b64_medium"]}})
+                if item is not None:
+                    image = get_or_create_image_cache(item["thumbnail_url"])
+                    item.update({"image":{"image_b64_medium": image["image_b64_medium"]}})
         snippets.append({"snippet_type": "LLM MESSAGE", "text": llm_response, "convo": convo_existing,
                          "pydantic_text": items})
 
         self._bulk_create_snippets(snippets)
+        if match_bundle:
+            self._match_bundle_create(match_bundle, llm_response)
         serializer = ConvoSerializer(convo_existing)
         return Response(serializer.data, status=200)
 
@@ -185,6 +207,54 @@ class FreeSearchListView(APIView):
             for item in items:
                 image = get_or_create_image_cache(item["thumbnail_url"])
                 item.update({"image":{"image_b64_medium": image["image_b64_medium"]}})
+        snippets.append({"snippet_type": "LLM MESSAGE", "text": llm_response, "convo": convo_existing,
+                         "pydantic_text": items})
+
+        self._bulk_create_snippets(snippets)
+        serializer = ConvoSerializer(convo_existing)
+        return Response(serializer.data, status=200)
+
+
+@extend_schema_view(
+    get=extend_schema(
+        parameters=[
+            OpenApiParameter(
+                'q',
+                OpenApiTypes.STR,
+                description='Query Suggestion'
+            ),
+            OpenApiParameter(
+                'is_initiate',
+                OpenApiTypes.BOOL,
+                description='Is initiate convo?'
+            ),
+            OpenApiParameter(
+                'convo_id',
+                OpenApiTypes.STR,
+                description='convo ID'
+            )
+        ]
+    )
+)
+class DummyListView(SearchListView):
+
+    def get(self, request, *args, **kwargs):
+        user = self.request.user
+        query = request.GET.get('q', None)
+        convo_id = request.GET.get('convo_id', None)
+        if convo_id is None:
+            new_convo = self._create_default_snippet()
+            serializer = ConvoSerializer(new_convo)
+            return Response(serializer.data, status=200)
+        convo_existing = Convo.objects.filter(user=user, convo_id=convo_id).latest("created_date")
+        snippets = [{"snippet_type": "USER MESSAGE", "text": query, "convo": convo_existing
+        }]
+        items, llm_response, sampled_item_ids = get_dummy_suggestions()
+        if items:
+            for item in items:
+                if item is not None:
+                    image = get_or_create_image_cache(item["thumbnail_url"])
+                    item.update({"image":{"image_b64_medium": image["image_b64_medium"]}})
         snippets.append({"snippet_type": "LLM MESSAGE", "text": llm_response, "convo": convo_existing,
                          "pydantic_text": items})
 
