@@ -15,12 +15,13 @@ requests
 pinecone-client
 gunicorn
 python-dotenv
-openai
-azure-cosmos
+gitazure-cosmos
 pytest
 pytest-mock
 tvdb_v4_official
 google-api-python-client
 git+https://github.com/internetarchive/openlibrary-client.git
 django-extensions
+model-mommy
+git+https://github.com/MichaelHoltonPrice/chancog.git
 model-mommy

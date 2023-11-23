@@ -1,4 +1,5 @@
 # Create your views here.
+from django.shortcuts import get_object_or_404
 from rest_framework import (
     viewsets,
     mixins,
@@ -15,6 +16,7 @@ from suggestions.serializers import ConvoSerializer
 
 class ConvoViewSet(mixins.DestroyModelMixin,
                    mixins.RetrieveModelMixin,
+                   mixins.UpdateModelMixin,
                    mixins.ListModelMixin,
                    viewsets.GenericViewSet):
     serializer_class = ConvoSerializer
@@ -36,3 +38,10 @@ class ConvoViewSet(mixins.DestroyModelMixin,
         list_convo = Convo.objects.filter(user=user)
         list_convo.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+    def update(self, request, *args, **kwargs):
+        instance = get_object_or_404(Convo, convo_id=kwargs.get("convo_id"))
+        instance.user = request.user
+        instance.save()
+        serializer = self.get_serializer(instance)
+        return Response(serializer.data)

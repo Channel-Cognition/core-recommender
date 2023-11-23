@@ -11,8 +11,8 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 import os
 from pathlib import Path
-from chancog.sagenerate.cosmos import CosmosHandler
-from chancog.llm import OAIAzureServiceHandler
+from chancog.cosmos import CosmosHandler
+from chancog.llm import OpenAIHandler
 from chancog.sagenerate.tvdb import TVDBHandler
 from chancog.sagenerate.openlibrary import OpenLibraryHandler
 from chancog.llm import PineconeManager
@@ -186,6 +186,10 @@ framing += "With every response, please (1) provide an updated numbered list of 
 framing += "(2) include the item type (e.g., book) with each item in the list. "
 framing += "Be as succinct as is reasonable while still uniquely identifying items. "
 framing += "Do not include items the user is no longer interested in."
+framing += "Return a JSON with two base fields: text, which, will be shown to the user, and new_items, "
+framing += "which is a list of newly suggested items. Each item in new_items must contain an item_type field "
+framing += "(e.g., book) and should contain additional fields to uniquely specify the item "
+framing += "(e.g., title and author for a book)."
 
 
 GREETING = "Hello, I can help suggest a new movie to watch. What are you looking for?"
@@ -194,7 +198,6 @@ TRUNCATED_FRAMING = framing
 
 AZURE_OPENAI_KEY=os.environ.get("AZURE_OPENAI_KEY")
 AZURE_OPENAI_ENDPOINT=os.environ.get("AZURE_OPENAI_ENDPOINT")
-GPT_35_DEPLOY_NAME =os.environ.get("GPT_35_DEPLOY_NAME")
 
 COSMOS_URL = os.environ.get("COSMOS_URL")
 COSMOS_KEY = os.environ.get("COSMOS_KEY")
@@ -213,26 +216,36 @@ CACHES = {
     }
 }
 
-DATABASE_NAME = "ConversationsDB"
-
-COSMOS_HANDLER = CosmosHandler(COSMOS_KEY, COSMOS_URL, DATABASE_NAME)
+COSMOS_HANDLER = CosmosHandler(COSMOS_KEY,
+                               COSMOS_URL,
+                               COSMOS_DB_NAME,
+                               container_names=['items'])
 
 # TODO: MODEL_DEPLOYMENTS should probably be an environmental variable
+# MODEL_DEPLOYMENTS = {
+#     'gpt-3.5-turbo': 'gpt-3.5-turbo-1106',  # Azure sometimes uses gpt-35-turbo
+#     'gpt-4': 'gpt-4-default-caeast',
+#     'text-embedding-ada-002': 'text-embedding-ada-002-caeast'
+# }
+
 MODEL_DEPLOYMENTS = {
-    'gpt-3.5-turbo': 'gpt-35-turbo-caeast',  # Azure sometimes uses gpt-35-turbo
+    'gpt-3.5-turbo': 'gpt-35-turbo-caeast', # Azure sometimes uses gpt-35-turbo
     'gpt-4': 'gpt-4-default-caeast',
+    'gpt-4-32k': 'gpt-4-32k-default-caeast',
     'text-embedding-ada-002': 'text-embedding-ada-002-caeast'
 }
 
-OAI_HANDLER = OAIAzureServiceHandler(
+OAI_HANDLER = OpenAIHandler(
     AZURE_OPENAI_KEY,
     AZURE_OPENAI_ENDPOINT,
     MODEL_DEPLOYMENTS
 )
-
+OAI_MODEL=os.environ.get("GPT_35_DEPLOY_NAME")
+OPEN_AI_API_KEY=os.environ.get("OPEN_AI_API_KEY")
+OAI_HANDLER_BASE=OpenAIHandler(OPEN_AI_API_KEY)
 # Pinecone Configuration
 PC_HANDLER = PineconeManager(
-    'sa-items2',
+    'sa-items-prod',
     PINECONE_API_KEY,
     PINECONE_API_ENV
 )

@@ -21,31 +21,3 @@ class ConvoSerializer(serializers.ModelSerializer):
         model = Convo
         fields = ('convo_id', 'user', 'snippets')
         read_only_fields = 'convo_id',
-
-    # def _create_default_snippet(self):
-    #     new_convo = Convo.objects.create(
-    #         auth_user=self.context['request'].user
-    #     )
-    #     data = [
-    #         {
-    #             "snippet_type": "FRAMING",
-    #             "text": settings.TRUNCATED_FRAMING,
-    #             "is_initiate": True,
-    #             "convo": new_convo
-    #         },
-    #         {
-    #             "snippet_type": "ASSISTANT MESSAGE",
-    #             "text": settings.GREETING,
-    #             "is_initiate": True,
-    #             "convo": new_convo
-    #         }
-    #     ]
-    #     for snippet in data:
-    #         Snippet.objects.create(**snippet)
-    #     return new_convo
-    #
-    # def create(self, validated_data):
-    #     is_initiate = validated_data["is_initiate"]
-    #     if is_initiate:
-    #         new_convo = self._create_default_snippet()
-    #     return new_convo
