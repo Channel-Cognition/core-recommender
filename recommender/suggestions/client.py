@@ -2,37 +2,23 @@ import json
 from chancog.entities import Conversation, Snippet as ChancogSnippet
 
 from django.conf import settings
-from chancog.sagenerate.processing import process_new_user_message
+from utils.processings import process_new_user_message
+
 from .models import Convo, Snippet
+from .tasks import process_new_user_message, error_handler
 
 
-def perform_search(query, convo_id):
+def perform_search(convo_id):
     response = {"MESSAGE_STATUS": "SUCCESS",
                  "MESSAGE_DATA": ""}
-    conversation = build_dict_convo(convo_id)
-    oai_handler_base = settings.OAI_HANDLER_BASE
-    oai_handler_azure = settings.OAI_HANDLER
-    if conversation is None:
-        response["MESSAGE_STATUS"] = "FAILED"
-        response["MESSAGE_DATA"] = "Conversation is not found"
-        return response
-    is_succeed, conversation, llm_message, text, item_infos, new_match_bundle = process_new_user_message(
-        conversation=conversation,
-        user_message=query,
-        oai_handler=oai_handler_azure,
-        oai_model=settings.OAI_MODEL,
-        cosmos_handler=settings.COSMOS_HANDLER,
-        pc_handler=settings.PC_HANDLER,
-        tvdb_handler=None,
-        ol_handler=None,
-    )
+    result = process_new_user_message.apply_async(args=[convo_id], link_error=[error_handler.s(),])
+    print(is_succeed)
     if not is_succeed:
         response["MESSAGE_STATUS"] = "FAILED"
         response["MESSAGE_DATA"] = "Did not get response from Opean AI"
-    print(llm_message.to_dict())
-    response["MESSAGE_DATA"] = {"llm_response":json.loads(llm_message.to_dict()['text'])['text'],
-                                "items":item_infos,
-                                "match_bundle":new_match_bundle}
+    print(item_infos)
+    response["MESSAGE_DATA"] = {"llm_response":text,
+                                "items":item_infos,}
     return response
 
 

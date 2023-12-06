@@ -187,6 +187,7 @@ framing += "(2) include the item type (e.g., book) with each item in the list. "
 framing += "Be as succinct as is reasonable while still uniquely identifying items. "
 framing += "Do not include items the user is no longer interested in."
 framing += "Return a JSON with two base fields: text, which, will be shown to the user, and new_items, "
+framing += "Remember return only those two base fields: text and new_items, nothing else! "
 framing += "which is a list of newly suggested items. Each item in new_items must contain an item_type field "
 framing += "(e.g., book) and should contain additional fields to uniquely specify the item "
 framing += "(e.g., title and author for a book)."
@@ -261,3 +262,6 @@ CORS_ALLOWED_ORIGINS = os.environ.get("ENV_CORS_ALLOWED_ORIGINS").split(' ')
 CORS_ALLOW_CREDENTIALS = str(os.environ.get("ENV_CORS_ALLOW_CREDENTIALS")) == "true"
 CORS_ALLOW_HEADERS = os.environ.get("ENV_CORS_ALLOW_HEADERS").split(' ')
 CORS_ALLOW_METHODS = os.environ.get("ENV_CORS_ALLOW_METHODS").split(' ')
+
+CELERY_RESULT_BACKEND = os.environ.get("CELERY_BACKEND", "redis://redis_db:6388/0")
+CELERY_BROKER_URL = os.environ.get("CELERY_BROKER", "redis://redis_db:6388/0")
