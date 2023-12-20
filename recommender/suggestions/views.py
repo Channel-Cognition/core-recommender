@@ -1,3 +1,5 @@
+import time
+
 from chancog.sagenerate.processing import get_dummy_suggestions
 from django.conf import settings
 # Create your views here.
@@ -13,11 +15,9 @@ from drf_spectacular.utils import (
     OpenApiParameter,
     OpenApiTypes)
 
-from .client import perform_search
 from .models import Convo, Snippet, MatchBundle, ItemMatch
 from .serializers import ConvoSerializer
-from .tasks import process_new_user_message, error_handler
-
+from .tasks import process_new_user_message
 
 from utils.resizing_image import get_or_create_image_cache
 
@@ -101,7 +101,7 @@ class SearchListView(APIView):
         convo_existing = Convo.objects.filter(user=user, convo_id=convo_id).latest("created_date")
         query_snippet = {"snippet_type": "USER MESSAGE", "text": query, "convo": convo_existing}
         Snippet.objects.create(**query_snippet)
-        result = process_new_user_message.apply_async(args=[convo_id], link_error=[error_handler.s(), ])
+        result = process_new_user_message.apply_async(args=(convo_id, ))
         serializer = ConvoSerializer(convo_existing)
         return Response(serializer.data, status=200)
 

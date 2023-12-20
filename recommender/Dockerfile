@@ -19,5 +19,7 @@ COPY wheels /wheels
 # Install all wheel files from the /wheels directory
 RUN pip install /wheels/*.whl
 
+RUN chmod +x entrypoint.sh
+
 # Command to run Django's runserver
-CMD ["gunicorn", "recommender.wsgi:application", "--bind", "0.0.0.0:8000", "--timeout", "120"]
+CMD ["./entrypoint.sh"]
