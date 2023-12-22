@@ -2,11 +2,8 @@ import uuid
 import base64
 
 import requests
+from django.contrib.postgres.fields import ArrayField
 from django.db import models
-from django.db.models.signals import post_save
-from django.dispatch import receiver
-from PIL import Image
-from io import BytesIO
 
 
 # Create your models here.
@@ -53,11 +50,6 @@ class Movie(models.Model):
         max_length=10,
         blank=True,
         null=True)
-    genres = models.ManyToManyField(
-        'Genre',
-        blank=True,
-        null=True
-    )
     channels = models.ManyToManyField(
         'Channel',
         blank=True,
@@ -70,6 +62,10 @@ class Movie(models.Model):
     long_description = models.TextField(
         blank=True,
         null=True)
+    genres = ArrayField(models.CharField(max_length=200), blank=True, null=True)
+    item_info = models.JSONField(null=True)
+    cosmos_item_info = models.JSONField(null=True)
+    call_diagnostics = models.JSONField(null=True)
 
     class Meta:
         unique_together = (('title', 'year'),)

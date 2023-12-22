@@ -17,8 +17,8 @@ def save_image_from_url_with_resizing(url):
 
             # Resize the image
             img_small = img.resize((100, 150), Image.LANCZOS)
-            img_medium = img.resize((400, 600), Image.LANCZOS)
-            img_large = img.resize((800, 1000), Image.LANCZOS)
+            img_medium = img.resize((200, 300), Image.LANCZOS)
+            img_large = img.resize((400, 600), Image.LANCZOS)
 
             # Convert the resized image data to base64
             buffered = BytesIO()

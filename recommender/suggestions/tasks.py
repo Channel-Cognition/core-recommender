@@ -7,7 +7,7 @@ from chancog.sagenerate.processing import process_new_user_message
 from chancog.parsing import parse_json_string
 from django.conf import settings
 
-
+from movies.models import Movie, Genre
 from suggestions.models import Snippet, Convo
 from suggestions.pydantics import LLMResponseSchema
 from utils.processings import convert_to_list_json
@@ -25,15 +25,25 @@ def task_rag_matcher(item):
     oai_model = settings.OAI_MODEL
     pc_handler = settings.PC_HANDLER
     cosmos_handler = settings.COSMOS_HANDLER
-    item_info, cosmos_item_info, call_diagnostics = rag_matcher(item,
-                                                                oai_handler,
-                                                                oai_model,
-                                                                pc_handler,
-                                                                cosmos_handler.containers['items'],
-                                                                num_matches=10)
-    result["item_info"] = item_info
-    result["cosmos_item_info"] = cosmos_item_info
-    result["call_diagnostics"] = call_diagnostics
+    # get or create movie, if not created, call rag_matcher
+    movie, created = Movie.objects.get_or_create(
+        title=item["title"],
+        year=item["year"]
+    )
+    if created:
+        item_info, cosmos_item_info, call_diagnostics = rag_matcher(item,
+                                                                    oai_handler,
+                                                                    oai_model,
+                                                                    pc_handler,
+                                                                    cosmos_handler.containers['items'],
+                                                                    num_matches=10)
+        movie.item_info = item_info
+        movie.cosmos_item_info = cosmos_item_info
+        movie.call_diagnostics = call_diagnostics
+        movie.save()
+    result["item_info"] = movie.item_info
+    result["cosmos_item_info"] = movie.cosmos_item_info
+    result["call_diagnostics"] = movie.call_diagnostics
     return result
 
 
