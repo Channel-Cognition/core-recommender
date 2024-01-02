@@ -1,4 +1,6 @@
 import traceback
+from channels.layers import get_channel_layer
+from asgiref.sync import async_to_sync
 
 from celery import chord
 from celery import shared_task
@@ -61,9 +63,17 @@ def list_result_rag_matcher(results, convo_id, text):
         if item is not None:
             image = get_or_create_image_cache(item["thumbnail_url"])
             item.update({"image": {"image_b64_medium": image["image_b64_medium"]}})
-    snippet_data = {"snippet_type": "LLM MESSAGE", "text": text, "convo": obj_convo,
-                    "pydantic_text": item_infos}
+    snippet_data = {"snippet_type": "LLM MESSAGE", "text": text, "convo": obj_convo, "pydantic_text": item_infos}
     Snippet.objects.create(**snippet_data)
+    # Send Snippet_Data to FE from WebSocket
+    channel_layer = get_channel_layer()
+    async_to_sync(channel_layer.group_send)(
+        f"convo_group_{convo_id}",  # Use a unique group name for each conversation
+        {
+            'type': 'send_data',
+            'data': snippet_data,
+        }
+    )
     return item_infos
 
 @shared_task()
@@ -74,8 +84,17 @@ def handle_failed_task(convo_id, task_id, traceback_str):
     snippet_data = {"snippet_type": "LLM MESSAGE",
                     "text": "Something went wrong, please try again",
                     "convo": obj_convo,
-                    "pydantic_text": {}}
+                    "pydantic_text": ""}
     Snippet.objects.create(**snippet_data)
+    # Send Snippet_Data to FE from WebSocket
+    channel_layer = get_channel_layer()
+    async_to_sync(channel_layer.group_send)(
+        f"convo_group_{convo_id}",  # Use a unique group name for each conversation
+        {
+            'type': 'send_data',
+            'data': snippet_data,
+        }
+    )
     return "Handle Failed Success"
 
 

@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     "drf_spectacular",
     "rest_framework",
     "rest_framework.authtoken",
+    'channels',
 
     "convos",
     "movies",
@@ -65,8 +66,7 @@ MIDDLEWARE = [
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
-    "django.middleware.clickjacking.XFrameOptionsMiddleware",
-]
+    "django.middleware.clickjacking.XFrameOptionsMiddleware"]
 
 ROOT_URLCONF = "recommender.urls"
 
@@ -87,6 +87,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = "recommender.wsgi.application"
+ASGI_APPLICATION = "recommender.asgi.application"
 
 
 # Database

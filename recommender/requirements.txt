@@ -29,3 +29,6 @@ Django
 django-celery-beat
 django-celery-results
 redis
+channels
+channels-redis
+websockets
