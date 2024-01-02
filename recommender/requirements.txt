@@ -15,7 +15,7 @@ requests
 pinecone-client
 gunicorn
 python-dotenv
-gitazure-cosmos
+azure-cosmos
 pytest
 pytest-mock
 tvdb_v4_official
@@ -23,5 +23,12 @@ google-api-python-client
 git+https://github.com/internetarchive/openlibrary-client.git
 django-extensions
 model-mommy
-git+https://github.com/MichaelHoltonPrice/chancog.git
 model-mommy
+Celery
+Django
+django-celery-beat
+django-celery-results
+redis
+channels
+channels-redis
+websockets

@@ -1,4 +1,4 @@
 #!/bin/bash
-APP_PORT=${PORT:-8000}
-cd /app/
-/opt/venv/bin/gunicorn --worker-tmp-dir /dev/shm recommender.wsgi:application --bind "0.0.0.0:${APP_PORT}"
+python manage.py migrate --noinput
+celery -A recommender worker -l info --detach
+gunicorn --reload -b 0.0.0.0:8000 --timeout 120 recommender.wsgi:application

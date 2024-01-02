@@ -20,6 +20,4 @@ class MovieSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Movie
-        fields = ('movie_id', 'title', 'year',
-                  'thumbnail', 'age_start', 'genres', 'channels')
-        read_only_fields = 'movie_id',
+        fields = '__all__'

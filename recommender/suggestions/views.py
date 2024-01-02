@@ -1,3 +1,5 @@
+import time
+
 from chancog.sagenerate.processing import get_dummy_suggestions
 from django.conf import settings
 # Create your views here.
@@ -11,11 +13,11 @@ from drf_spectacular.utils import (
     extend_schema_view,
     extend_schema,
     OpenApiParameter,
-    OpenApiTypes
-)
-from .client import perform_search
+    OpenApiTypes)
+
 from .models import Convo, Snippet, MatchBundle, ItemMatch
 from .serializers import ConvoSerializer
+from .tasks import process_new_user_message
 
 from utils.resizing_image import get_or_create_image_cache
 
@@ -97,35 +99,9 @@ class SearchListView(APIView):
             serializer = ConvoSerializer(new_convo)
             return Response(serializer.data, status=200)
         convo_existing = Convo.objects.filter(user=user, convo_id=convo_id).latest("created_date")
-        snippets = [{"snippet_type": "USER MESSAGE", "text": query, "convo": convo_existing
-        }]
-        import time
-        start = time.time()
-        results = perform_search(query, str(convo_existing.convo_id))
-        if results["MESSAGE_STATUS"] == "FAILED":
-            print(results["MESSAGE_DATA"])
-            snippets.append({"snippet_type": "LLM MESSAGE", "text": "Sorry we cant find you're searching",
-                             "convo": convo_existing, "pydantic_text": None})
-            self._bulk_create_snippets(snippets)
-            serializer = ConvoSerializer(convo_existing)
-            return Response(serializer.data, status=200)
-        end = time.time()
-        print("perform_search", end-start)
-        llm_response = results["MESSAGE_DATA"]["llm_response"]
-        items = results["MESSAGE_DATA"]["items"]
-        match_bundle = results["MESSAGE_DATA"]["match_bundle"]
-
-        if items:
-            for item in items:
-                if item is not None:
-                    image = get_or_create_image_cache(item["thumbnail_url"])
-                    item.update({"image":{"image_b64_medium": image["image_b64_medium"]}})
-        snippets.append({"snippet_type": "LLM MESSAGE", "text": llm_response, "convo": convo_existing,
-                         "pydantic_text": items})
-
-        self._bulk_create_snippets(snippets)
-        if match_bundle:
-            self._match_bundle_create(match_bundle, llm_response)
+        query_snippet = {"snippet_type": "USER MESSAGE", "text": query, "convo": convo_existing}
+        Snippet.objects.create(**query_snippet)
+        result = process_new_user_message.apply_async(args=(convo_id, ))
         serializer = ConvoSerializer(convo_existing)
         return Response(serializer.data, status=200)
 
