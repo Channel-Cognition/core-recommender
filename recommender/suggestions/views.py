@@ -47,27 +47,6 @@ class SearchListView(APIView):
     authentication_classes = (TokenAuthentication,)
     permission_classes = (IsAuthenticated,)
 
-    def _match_bundle_create(self, match_bundle, llm_response):
-
-        snippet = Snippet.objects.get(text=llm_response)
-        obj_match_bundle = MatchBundle.objects.create(snippet=snippet)
-        item_matches = match_bundle.item_matches
-        if item_matches:
-            for item in item_matches:
-                if item:
-                    ItemMatch.objects.create(
-                        match_bundle=obj_match_bundle,
-                        external_id=item.external_id,
-                        quality=item.match_quality,
-                        details=item.details
-
-                    )
-
-    def _bulk_create_snippets(self, snippets):
-        for snippet in snippets:
-            Snippet.objects.create(**snippet)
-        return None
-
     def _create_default_snippet(self):
         new_convo = Convo.objects.create(
             user=self.request.user

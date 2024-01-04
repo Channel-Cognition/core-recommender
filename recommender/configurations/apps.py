@@ -1,6 +1,6 @@
 from django.apps import AppConfig
 
 
-class MoodboardsConfig(AppConfig):
+class ConfigurationsConfig(AppConfig):
     default_auto_field = "django.db.models.BigAutoField"
-    name = "moodboards"
+    name = "configurations"

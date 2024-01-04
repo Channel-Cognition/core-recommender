@@ -118,7 +118,7 @@ def process_new_user_message(conversation_id):
         was successful and conversation is the (likely) updated conversation
     """
     try:
-        snippet_type_to_role = {Snippet.FRAMING: 'assistant',
+        snippet_type_to_role = {Snippet.FRAMING: 'system',
                                 Snippet.ASSISTANT_MESSAGE: 'assistant',
                                 Snippet.USER_MESSAGE: 'user',
                                 Snippet.LLM_MESSAGE: 'assistant'}
@@ -137,6 +137,8 @@ def process_new_user_message(conversation_id):
         start = time.time()
         llm_message, call_diagnostics = oai_handler.call_gpt(messages,
                                                              model=oai_model)
+        print("----------------CALL DIAGNOSTICS-----------")
+        print(call_diagnostics)
         end = time.time()
         print("-------RESULT TIME----------")
         print(end-start)
