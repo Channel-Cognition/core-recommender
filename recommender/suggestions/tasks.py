@@ -66,14 +66,14 @@ def list_result_rag_matcher(results, convo_id, text):
     snippet_data = {"snippet_type": "LLM MESSAGE", "text": text, "convo": obj_convo, "pydantic_text": item_infos}
     Snippet.objects.create(**snippet_data)
     # Send Snippet_Data to FE from WebSocket
-    channel_layer = get_channel_layer()
-    async_to_sync(channel_layer.group_send)(
-        f"convo_group_{convo_id}",  # Use a unique group name for each conversation
-        {
-            'type': 'send_data',
-            'data': snippet_data,
-        }
-    )
+    # channel_layer = get_channel_layer()
+    # async_to_sync(channel_layer.group_send)(
+    #     f"convo_group_{convo_id}",  # Use a unique group name for each conversation
+    #     {
+    #         'type': 'send_data',
+    #         'data': snippet_data,
+    #     }
+    # )
     return item_infos
 
 @shared_task()
@@ -87,14 +87,14 @@ def handle_failed_task(convo_id, task_id, traceback_str):
                     "pydantic_text": ""}
     Snippet.objects.create(**snippet_data)
     # Send Snippet_Data to FE from WebSocket
-    channel_layer = get_channel_layer()
-    async_to_sync(channel_layer.group_send)(
-        f"convo_group_{convo_id}",  # Use a unique group name for each conversation
-        {
-            'type': 'send_data',
-            'data': snippet_data,
-        }
-    )
+    # channel_layer = get_channel_layer()
+    # async_to_sync(channel_layer.group_send)(
+    #     f"convo_group_{convo_id}",  # Use a unique group name for each conversation
+    #     {
+    #         'type': 'send_data',
+    #         'data': snippet_data,
+    #     }
+    # )
     return "Handle Failed Success"
 
 
@@ -145,7 +145,11 @@ def process_new_user_message(conversation_id):
         llm_message_parse = convert_to_list_json(llm_message)
         print("-----------LLM_MESSAGE_PARSE----------")
         print(llm_message_parse)
-
+        if len(llm_message_parse) == 0:
+            task_id = process_new_user_message.request.id
+            traceback_str = llm_message
+            handle_failed_task.apply_async(args=(conversation_id, task_id, traceback_str))
+            return llm_message
         text = "Here is movie recommendation for you"
         print("-----------TEXT_-----------")
         print(text)
