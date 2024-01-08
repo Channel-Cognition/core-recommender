@@ -27,7 +27,7 @@ SECRET_KEY = os.environ.get('SECRET_KEY')
 ENV_ALLOWED_HOST = os.environ.get("ENV_ALLOWED_HOST")
 ALLOWED_HOSTS = []
 if ENV_ALLOWED_HOST:
-    ALLOWED_HOSTS = [ ENV_ALLOWED_HOST]
+    ALLOWED_HOSTS = ENV_ALLOWED_HOST.split(' ')
 
 
 # Quick-start development settings - unsuitable for production
