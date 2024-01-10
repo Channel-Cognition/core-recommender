@@ -25,7 +25,7 @@ class ConvoSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         # Order snippets by created_date in descending order
-        snippets_data = instance.snippet_set.order_by('-created_date')
+        snippets_data = instance.snippet_set.order_by('created_date')
 
         # Serialize ordered snippets
         snippets_serializer = SnippetSerializer(snippets_data, many=True)
