@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "rest_framework.authtoken",
     'channels',
+    'django_celery_results',
 
     "convos",
     "movies",
@@ -280,5 +281,7 @@ CORS_ALLOW_CREDENTIALS = str(os.environ.get("ENV_CORS_ALLOW_CREDENTIALS")) == "t
 CORS_ALLOW_HEADERS = os.environ.get("ENV_CORS_ALLOW_HEADERS").split(' ')
 CORS_ALLOW_METHODS = os.environ.get("ENV_CORS_ALLOW_METHODS").split(' ')
 
-CELERY_RESULT_BACKEND = os.environ.get("CELERY_BACKEND", "redis://redis_db:6388/0")
+CELERY_RESULT_BACKEND = "django-db"
 CELERY_BROKER_URL = os.environ.get("CELERY_BROKER", "redis://redis_db:6388/0")
+
+CSRF_TRUSTED_ORIGINS = os.environ.get("ENV_CSRF_TRUSTED_ORIGINS").split(' ')
