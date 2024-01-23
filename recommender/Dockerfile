@@ -10,14 +10,15 @@ COPY . /app
 WORKDIR /app
 
 # Upgrade pip and install required python packages
-RUN python3 -m pip install --upgrade pip && \
-    pip install -r requirements.txt
+RUN pip install --upgrade pip
+RUN pip install -r requirements.txt
 
 # Copy wheel files over [this may be superfluous]
-COPY wheels /wheels 
+COPY wheels /wheels
 
 # Install all wheel files from the /wheels directory
 RUN pip install /wheels/*.whl
 
-# Command to run Django's runserver
-CMD ["gunicorn", "recommender.wsgi:application", "--bind", "0.0.0.0:8000"]
+RUN chmod +x entrypoint.sh
+
+CMD ["gunicorn", "recommender.wsgi:application", "--bind", "0.0.0.0:8000", "--timeout", "120"]

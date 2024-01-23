@@ -1,16 +1,39 @@
 version: '3.10'
 
 services:
+  redis_db:
+    image: redis
+    restart: always
+    expose:
+      - 6388
+    ports:
+      - "6388:6388"
+    volumes:
+      - redis_data:/data
+    entrypoint: redis-server --appendonly yes --port 6388
+
+  celery:
+    container_name: celery1
+    build:
+      dockerfile: Dockerfile
+    command: celery --app=recommender worker -l INFO
+    env_file:
+      - .env
+    depends_on:
+      - redis_db
+      - web
+      - postgres_db
+
   web:
-    image: ccsa_recommend:latest
+    build:
+      dockerfile: Dockerfile
+    image: django-core-recommender:v1
     env_file:
       - .env
     ports:
       - "8000:8000"
     depends_on:
       - postgres_db
-    networks:
-      - backend
 
   postgres_db:
     image: postgres:13-alpine
@@ -24,13 +47,7 @@ services:
       - "5432:5432"
     volumes:
       - dev-db-data:/var/lib/postgresql/data
-    networks:
-      - backend
-
-
-networks:
-  backend:
-    driver: bridge
 
 volumes:
   dev-db-data:
+  redis_data:

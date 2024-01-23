@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: django-k8s-core-recommender
+  labels:
+    app: django-k8s-core-recommender
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: django-k8s-core-recommender
+  template:
+    metadata:
+      labels:
+        app: django-k8s-core-recommender
+    spec:
+      containers:
+      - name: django-core-recommender
+        image: registry.digitalocean.com/django-recommender/django-core-recommender:latest
+        imagePullPolicy: Always
+        envFrom:
+          - secretRef:
+              name: k8s-core-recommender-env
+        env:
+          - name: PORT
+            value: "8000"
+        ports:
+        - containerPort: 8000
+      imagePullSecrets:
+        - name: django-recommender
+
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: django-k8s-core-recommender-service
+  annotations:
+    service.beta.kubernetes.io/do-loadbalancer-protocol: "https"
+    service.beta.kubernetes.io/do-loadbalancer-tls-ports: "443"
+    service.beta.kubernetes.io/do-loadbalancer-certificate-id: "585eb46d-e851-418e-96b8-3b4806763db3"
+spec:
+  type: LoadBalancer
+  ports:
+    - name: http
+      protocol: TCP
+      port: 80
+      targetPort: 8000
+    - name: https
+      protocol: TCP
+      port: 443
+      targetPort: 8000
+  selector:
+    app: django-k8s-core-recommender

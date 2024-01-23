@@ -20,4 +20,18 @@ class ConvoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Convo
         fields = ('convo_id', 'user', 'snippets')
-        read_only_fields = 'convo_id',
+        read_only_fields = 'convo_id',\
+
+
+    def to_representation(self, instance):
+        # Order snippets by created_date in descending order
+        snippets_data = instance.snippet_set.order_by('created_date')
+
+        # Serialize ordered snippets
+        snippets_serializer = SnippetSerializer(snippets_data, many=True)
+
+        # Add the ordered snippets to the representation
+        representation = super(ConvoSerializer, self).to_representation(instance)
+        representation['snippets'] = snippets_serializer.data
+
+        return representation
