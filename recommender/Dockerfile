@@ -21,5 +21,4 @@ RUN pip install /wheels/*.whl
 
 RUN chmod +x entrypoint.sh
 
-# Command to run Django's runserver
-CMD ["./entrypoint.sh"]
+CMD ["gunicorn", "recommender.wsgi:application", "--bind", "0.0.0.0:8000", "--timeout", "120"]
