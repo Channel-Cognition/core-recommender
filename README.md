@@ -71,7 +71,7 @@ Optionally, set IS_FAST_DEV (it will be True if the value is exactly true, and F
 If necessary, activate the virtual environment:
 
 ```console
-python -m venv venv
+venv\Scripts\activate
 ```
 
 If necessary, make migrations:
