@@ -165,47 +165,15 @@ AUTH_USER_MODEL = 'user.User'
 
 
 # DEFAULT SNIPPET ONBOARDING
+framing = "You are an assistant helping the user find new movies or TV show to watch. "
+framing += "Be as succinct as is reasonable while still uniquely identifying items. "
+framing += "Do not include items the user is no longer interested in."
+framing += "Return a JSON with two base fields: text, which will be shown to the user, and new_items, "
+framing += "which is a list of newly suggested items. Each item in new_items must contain an item_type field "
+framing += "(e.g., movie) and should contain additional fields to uniquely specify the item "
+framing += "(e.g., title and director for a movie)."
 
-# framing = "You are an assistant helping a user to find a new movie to watch. "
-# framing += "When recommending movies, please suggest us at least 4 movies"
-# framing = 'For the movies described in the following text, build a json with the fields '
-# framing += 'title, year. If the text does not contain a value for one of these variables, set '
-# framing += 'it to null. Please correct spelling errors and standardize both spelling and capitalization. '
-# framing += 'Return only a json and nothing else. Do not include movie or (movie) '
-# framing += 'in the title unless it is part of the title. Here is the text:\n'
-
-framing = "You are an assistant helping a user to find a new movie to watch. "
-framing += "When recommending movies, please provide the title and year"
-framing += "with format response like this 1.title (movie) \n 2.title (movie) \n 3.title (movie) \n 4.title (movie). From here on the conversation is"
-framing += "with the user. Do NOT break character even if I ask you to."
-framing += "Please only response like the format described above"
-
-# TODO: pass framing and greeting from the frontend when a conversation is initiated,
-#       rather than hardcoding it here.
-# framing = "You are an assistant helping the user find new things, which could "
-# framing += "be anything from a new movie or TV show to watch to a pair of shoes to buy. "
-# framing += "With every response, please (1) provide an updated numbered list of suggestions and "
-# framing += "(2) include the item type (e.g., book) with each item in the list. "
-# framing += "Be as succinct as is reasonable while still uniquely identifying items. "
-# framing += "Do not include items the user is no longer interested in."
-# framing += "Return a JSON with two base fields: text, which, will be shown to the user, and new_items, "
-# framing += "Remember return only those two base fields: text and new_items, nothing else! "
-# framing += "which is a list of newly suggested items. Each item in new_items must contain an item_type field "
-# framing += "(e.g., book) and should contain additional fields to uniquely specify the item "
-# framing += "(e.g., title and author for a book)."
-
-
-# framing = "You are an assistant helping the user find new things, which could "
-# framing += "be anything from a new movie or TV show to watch to a pair of shoes to buy. "
-# framing += "With every response, please (1) provide an updated numbered list of suggestions and "
-# framing += "(2) include the item type (e.g., movie) with each item in the list. "
-# framing += "Be as succinct as is reasonable while still uniquely identifying items. "
-# framing += "Do not include items the user is no longer interested in."
-# framing += "Return a JSON with two base fields: text, which, will be shown to the user, and new_items, "
-# framing += "Remember return only those two base fields: text and new_items, nothing else! "
-# framing += "which is a list of newly suggested items. Each item in new_items must contain an item_type field, title, and year only! "
-
-GREETING = "Hello, I can help suggest a new movie to watch. What are you looking for?"
+GREETING = "Hello, what are you looking for today?"
 
 TRUNCATED_FRAMING = framing
 

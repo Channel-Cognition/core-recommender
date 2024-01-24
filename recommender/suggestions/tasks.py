@@ -14,6 +14,7 @@ from suggestions.models import Snippet, Convo
 from suggestions.pydantics import LLMResponseSchema
 from utils.processings import convert_to_list_json, parse_movie_list, process_suggestion
 from utils.resizing_image import get_or_create_image_cache
+import json
 
 @shared_task
 def task_rag_matcher(item):
@@ -238,32 +239,41 @@ def process_new_user_message_v2(conversation_id):
         import time
         start = time.time()
         llm_message, call_diagnostics = oai_handler.call_gpt(messages,
-                                                             model=oai_model)
+                                                             model=oai_model,
+                                                             json_mode=True)
         end = time.time()
         print("-------RESULT TIME----------")
         print(end-start)
         print("---------------LLM_MESSAGE---------------")
         print(llm_message)
-        llm_message_parse = convert_to_list_json(llm_message)
-        print("-----------LLM_MESSAGE_PARSE----------")
-        print(llm_message_parse)
-        if len(llm_message_parse) == 0:
-            task_id = process_new_user_message_v2.request.id
-            traceback_str = llm_message
-            handle_failed_task.apply_async(args=(conversation_id, task_id, traceback_str))
-            return llm_message
-        text = "Here is movie recommendation for you"
-        print("-----------TEXT_-----------")
-        print(text)
-        new_items = llm_message_parse
-        print(new_items)
-        print("----------NEW_ITEMS-------------------")
-        print(new_items)
-        if new_items:
-            callback = list_result_rag_matcher.s(convo_id=str(conversation_id), text=text)
-            header = [task_rag_matcher_v2.s(item) for item in new_items if item]
-            result_rag_mathcer = chord(header)(callback)
+
+        llm_dict = json.loads(llm_message)
+        callback = list_result_rag_matcher.s(convo_id=str(conversation_id), text=llm_dict['text'])
+        header = []
+        # TODO: use the new algorithm for matching here
+        #header = [task_rag_matcher_v2.s(item) for item in llm_dict['new_items'] if item]
+        result_rag_matcher = chord(header)(callback)
         return llm_message
+#        llm_message_parse = convert_to_list_json(llm_message)
+#        print("-----------LLM_MESSAGE_PARSE----------")
+#        print(llm_message_parse)
+#        if len(llm_message_parse) == 0:
+#            task_id = process_new_user_message_v2.request.id
+#            traceback_str = llm_message
+#            handle_failed_task.apply_async(args=(conversation_id, task_id, traceback_str))
+#            return llm_message
+#        text = "Here is movie recommendation for you"
+#        print("-----------TEXT_-----------")
+#        print(text)
+#        new_items = llm_message_parse
+#        print(new_items)
+#        print("----------NEW_ITEMS-------------------")
+#        print(new_items)
+#        if new_items:
+#            callback = list_result_rag_matcher.s(convo_id=str(conversation_id), text=text)
+#            header = [task_rag_matcher_v2.s(item) for item in new_items if item]
+#            result_rag_mathcer = chord(header)(callback)
+#        return llm_message
     except Exception as e:
         traceback_str = traceback.format_exc()
         task_id = process_new_user_message_v2.request.id
