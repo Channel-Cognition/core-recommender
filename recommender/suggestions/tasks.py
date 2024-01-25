@@ -62,23 +62,26 @@ def task_rag_matcher_v2(item):
     oai_model = settings.OAI_MODEL
     pc_handler = settings.PC_HANDLER
     cosmos_handler = settings.COSMOS_HANDLER
-    # get or create movie, if not created, call rag_matcher
-    movie, created = Movie.objects.get_or_create(
-        title=item["name"],
-        year=item["year"]
-    )
-    if created:
-        item_info, call_diagnostics = process_suggestion(item,
-                                                         oai_handler,
-                                                         oai_model,
-                                                         pc_handler,
-                                                         cosmos_handler)
-        movie.item_info = item_info
-        movie.call_diagnostics = call_diagnostics
-        movie.save()
-    result["item_info"] = movie.item_info
-    result["cosmos_item_info"] = movie.cosmos_item_info
-    result["call_diagnostics"] = movie.call_diagnostics
+#    movie, created = Movie.objects.get_or_create(
+#        title=item["name"],
+#        year=item["year"]
+#    )
+#    if created:
+#        item_info, call_diagnostics = process_suggestion(item,
+#                                                         oai_handler,
+#                                                         oai_model,
+#                                                         pc_handler,
+#                                                         cosmos_handler)
+#        movie.item_info = item_info
+#        movie.call_diagnostics = call_diagnostics
+#        movie.save()
+ 
+    item_info, call_diagnostics = process_suggestion(item,
+                                                     oai_handler,
+                                                     oai_model,
+                                                     pc_handler,
+                                                     cosmos_handler)
+    result["item_info"] = item_info
     return result
 
 @shared_task
@@ -234,13 +237,42 @@ def process_new_user_message_v2(conversation_id):
                'role': snippet_type_to_role.get(snippet.snippet_type),
                 'content': snippet.text
             })
-        oai_handler = settings.OAI_HANDLER
+        #oai_handler = settings.OAI_HANDLER
         oai_model = settings.OAI_MODEL
         import time
         start = time.time()
-        llm_message, call_diagnostics = oai_handler.call_gpt(messages,
-                                                             model=oai_model,
-                                                             json_mode=True)
+        #llm_message, call_diagnostics = oai_handler.call_gpt(messages,
+        #                                                     model=oai_model,
+        #                                                     json_mode=True)
+        azure_client = settings.AZURE_CLIENT
+        response = azure_client.chat.completions.create(
+            model='gpt-4-default-caeast',
+            messages=messages,
+            stream=True
+        )
+        print('****************')
+        print(response)
+        print('****************')
+
+        chunk_texts = []
+        # iterate through the stream of events
+        for n, chunk in enumerate(response):
+            print('-----')
+            print(n)
+            print('--')
+            choice_delta = chunk.choices[0].delta
+            print(choice_delta)
+            chunk_text = choice_delta.content
+            print('--')
+            print(chunk_text)
+            chunk_texts.append(chunk_text)  # save the message
+        
+        # Build llm_message, accounting for the fact that the content
+        # of the last, stop chunk is None
+        llm_message = ''.join([c for c in chunk_texts if c])
+
+        # TODO: load chunks from database
+
         end = time.time()
         print("-------RESULT TIME----------")
         print(end-start)
@@ -249,9 +281,9 @@ def process_new_user_message_v2(conversation_id):
 
         llm_dict = json.loads(llm_message)
         callback = list_result_rag_matcher.s(convo_id=str(conversation_id), text=llm_dict['text'])
-        header = []
+        #header = []
         # TODO: use the new algorithm for matching here
-        #header = [task_rag_matcher_v2.s(item) for item in llm_dict['new_items'] if item]
+        header = [task_rag_matcher_v2.s(item) for item in llm_dict['new_items'] if item]
         result_rag_matcher = chord(header)(callback)
         return llm_message
 #        llm_message_parse = convert_to_list_json(llm_message)

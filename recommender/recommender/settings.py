@@ -16,6 +16,7 @@ from chancog.llm import OpenAIHandler, CorrectingOpenAIHandler
 from chancog.sagenerate.tvdb import TVDBHandler
 from chancog.sagenerate.openlibrary import OpenLibraryHandler
 from chancog.llm import PineconeManager
+from openai import AzureOpenAI
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -230,6 +231,12 @@ CORRECTING_OAI_HANDLER = CorrectingOpenAIHandler(
 OAI_MODEL=os.environ.get("GPT_35_DEPLOY_NAME")
 OPEN_AI_API_KEY=os.environ.get("OPEN_AI_API_KEY")
 OAI_HANDLER_BASE=OpenAIHandler(OPEN_AI_API_KEY)
+
+# Make an Azure client we can use for streaming
+AZURE_CLIENT = AzureOpenAI(api_key=AZURE_OPENAI_KEY,
+                           api_version='2023-05-15',
+                           azure_endpoint=AZURE_OPENAI_ENDPOINT)
+
 # Pinecone Configuration
 PC_HANDLER = PineconeManager(
     'sa-items-prod',
