@@ -168,75 +168,79 @@ def process_new_user_message(conversation_id):
                'role': snippet_type_to_role.get(snippet.snippet_type),
                 'content': snippet.text
             })
-        #oai_handler = settings.OAI_HANDLER
-        oai_model = settings.OAI_MODEL
         import time
         start = time.time()
-        #llm_message, call_diagnostics = oai_handler.call_gpt(messages,
-        #                                                     model=oai_model,
-        #                                                     json_mode=True)
+
         azure_client = settings.AZURE_CLIENT
         response = azure_client.chat.completions.create(
-            model='gpt-4-default-caeast',
+            model='gpt-4-default-caeast', # TODO (Mike): use a preview model for better json_mode support
             messages=messages,
             stream=True
         )
-        print('****************')
-        print(response)
-        print('****************')
 
         chunk_texts = []
-        # iterate through the stream of events
-        for n, chunk in enumerate(response):
-            print('-----')
-            print(n)
-            print('--')
+        # response is really an iterator / yielder
+        # TODO (Max): Handle the possibility of errors/failures in the following for loop
+        # TODO (Mike): Parse the chunks as they arrive to determine, as soon as possible,
+        #              when (a) the text field is complete, (b) a new item is complete,
+        #              or (c) something has gone wrong (e.g., not a proper json response)
+        for chunk in response:
             choice_delta = chunk.choices[0].delta
-            print(choice_delta)
             chunk_text = choice_delta.content
-            print('--')
-            print(chunk_text)
             chunk_texts.append(chunk_text)  # save the message
         
         # Build llm_message, accounting for the fact that the content
         # of the last, stop chunk is None
         llm_message = ''.join([c for c in chunk_texts if c])
 
-        # TODO: load chunks from database
+        # TODO (Max): store chunks in database and load from database using
+        #             the new tables I added to models.py, LLMStream and LLMStreamChunk
+        # TODO (Max): Immediately when the text is available, send it to the frontend
+        #
+        # TODO (Max): Here is the high level approach for communicating with the front
+        #             end. We will build a hash map (dictionary) or list of objects
+        #             that need to be displayed, and send updates (deltas) to the
+        #             frontend when it polls the backend. Here is an example:
+        #
+        # Action 0:  Show initial prompt to user
+        # Action 1:  Show user message 0 [we keep this in the list even though the frontend already knows about it]
+        # Action 1:  Show chunk 0 of llm snippet 0
+        # Action 2:  Show chunk 1 of llm snippet 0
+        # Action 3:  Show chunk 2 of llm snippet 0 (etc)
+        # Action 4:  Show item 0
+        # Action 5:  Show item 1
+        # Action 6:  Replace item 0 [because our slow matching found a better match]
+        # Action 7:  Show item 2
+        # Action 8:  Show user message 1
+        # Action 9:  Show chunk 0 of llm snippet 1
+        # Action 10: Show chunk 1 of llm snippet 1
+        # Action 11: Show chunk 2 of llm snippet 1
+        # Action 12:  Show item 3
+        # Action 13:  Show item 4
+        # Action 14:  Show item 5
+        # Action 15:  Replace item 1
+        # Action 16:  Replace item 4
+        # etc
 
+        # When the frontend polls the backend, it sends the index of the most recent
+        # action it has stored in its local cache. We need to maintain the flexibility
+        # to tell the frontend there was a mistake and it needs to "backup" and replace
+        # previous actions with new ones. This is different from replace item action.
+        # We want this in case the, say, the streaming fails and we have to call the
+        # LLM again, which implies we need to text. Alternatively, and equivalently,
+        # we could define a replace action for all the things we can set.
+ 
         end = time.time()
         print("-------RESULT TIME----------")
         print(end-start)
         print("---------------LLM_MESSAGE---------------")
         print(llm_message)
 
+        # TODO (Max): 
         llm_dict = json.loads(llm_message)
         callback = list_result_rag_matcher.s(convo_id=str(conversation_id), text=llm_dict['text'])
-        #header = []
-        # TODO: use the new algorithm for matching here
         header = [task_rag_matcher_v2.s(item) for item in llm_dict['new_items'] if item]
-        result_rag_matcher = chord(header)(callback)
         return llm_message
-#        llm_message_parse = convert_to_list_json(llm_message)
-#        print("-----------LLM_MESSAGE_PARSE----------")
-#        print(llm_message_parse)
-#        if len(llm_message_parse) == 0:
-#            task_id = process_new_user_message_v2.request.id
-#            traceback_str = llm_message
-#            handle_failed_task.apply_async(args=(conversation_id, task_id, traceback_str))
-#            return llm_message
-#        text = "Here is movie recommendation for you"
-#        print("-----------TEXT_-----------")
-#        print(text)
-#        new_items = llm_message_parse
-#        print(new_items)
-#        print("----------NEW_ITEMS-------------------")
-#        print(new_items)
-#        if new_items:
-#            callback = list_result_rag_matcher.s(convo_id=str(conversation_id), text=text)
-#            header = [task_rag_matcher_v2.s(item) for item in new_items if item]
-#            result_rag_mathcer = chord(header)(callback)
-#        return llm_message
     except Exception as e:
         traceback_str = traceback.format_exc()
         task_id = process_new_user_message.request.id
