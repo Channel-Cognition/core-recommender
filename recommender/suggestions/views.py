@@ -17,7 +17,7 @@ from drf_spectacular.utils import (
 
 from .models import Convo, Snippet, MatchBundle, ItemMatch
 from .serializers import ConvoSerializer
-from .tasks import process_new_user_message, process_new_user_message_v2
+from .tasks import process_new_user_message
 
 from utils.resizing_image import get_or_create_image_cache
 
@@ -101,7 +101,7 @@ class SearchListView(APIView):
         convo_existing = Convo.objects.filter(user=user, convo_id=convo_id).latest("created_date")
         query_snippet = {"snippet_type": "USER MESSAGE", "text": query, "convo": convo_existing}
         Snippet.objects.create(**query_snippet)
-        result = process_new_user_message_v2.apply_async(args=(convo_id, ))
+        result = process_new_user_message.apply_async(args=(convo_id, ))
         serializer = ConvoSerializer(convo_existing)
         return Response(serializer.data, status=200)
 

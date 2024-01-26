@@ -5,7 +5,6 @@ from asgiref.sync import async_to_sync
 from celery import chord
 from celery import shared_task
 from chancog.sagenerate.azfunc import rag_matcher
-from chancog.sagenerate.processing import process_new_user_message
 from chancog.parsing import parse_json_string
 from django.conf import settings
 
@@ -135,77 +134,9 @@ def handle_failed_task(convo_id, task_id, traceback_str):
     return "Handle Failed Success"
 
 
+
 @shared_task
 def process_new_user_message(conversation_id):
-    """
-    Processes a new user message for a Suggest Anything conversation
-
-    Args:
-        conversation (MatchConversation): An object of class chancog.entities.MatchConversation
-        user_message (str): The new user message
-        cosmos_handler (object): Handler for CosmosDB interactions
-        oai_handler (object): Handler for the Open AI API
-        oai_model (str): The chat completion model to use. Must support JSON mode.
-        pc_handler (object): Handler for Pinecone API interactions
-        tvdb_handler (object): Handler for TVDB API interactions
-        ol_handler (object): Handler for Open Library API interactions
-
-    Returns:
-        A tuple consisting of (success, conversation), where success indicates whether the processing
-        was successful and conversation is the (likely) updated conversation
-    """
-    try:
-        snippet_type_to_role = {Snippet.FRAMING: 'assistant',
-                                Snippet.ASSISTANT_MESSAGE: 'assistant',
-                                Snippet.USER_MESSAGE: 'user',
-                                Snippet.LLM_MESSAGE: 'assistant'}
-
-        obj_conversion = Convo.objects.get(convo_id=conversation_id)
-        snippets = Snippet.objects.filter(convo=obj_conversion)
-        messages = []
-        for snippet in snippets:
-            messages.append({
-               'role': snippet_type_to_role.get(snippet.snippet_type),
-                'content': snippet.text
-            })
-        oai_handler = settings.OAI_HANDLER
-        oai_model = settings.OAI_MODEL
-        import time
-        start = time.time()
-        llm_message, call_diagnostics = oai_handler.call_gpt(messages,
-                                                             model=oai_model)
-        end = time.time()
-        print("-------RESULT TIME----------")
-        print(end-start)
-        print("---------------LLM_MESSAGE---------------")
-        print(llm_message)
-        llm_message_parse = parse_movie_list(llm_message)
-        print("-----------LLM_MESSAGE_PARSE----------")
-        print(llm_message_parse)
-        if len(llm_message_parse) == 0:
-            task_id = process_new_user_message.request.id
-            traceback_str = llm_message
-            handle_failed_task.apply_async(args=(conversation_id, task_id, traceback_str))
-            return llm_message
-        text = "Here is movie recommendation for you"
-        print("-----------TEXT_-----------")
-        print(text)
-        new_items = llm_message_parse
-        print(new_items)
-        if new_items:
-            callback = list_result_rag_matcher.s(convo_id=str(conversation_id), text=text)
-            header = [task_rag_matcher.s(item) for item in new_items if item]
-            result_rag_mathcer = chord(header)(callback)
-        return llm_message
-    except Exception as e:
-        traceback_str = traceback.format_exc()
-        task_id = process_new_user_message.request.id
-        handle_failed_task.apply_async(args=(conversation_id, task_id, traceback_str))
-        raise
-
-
-@shared_task
-def process_new_user_message_v2(conversation_id):
     """
     Processes a new user message for a Suggest Anything conversation
 
@@ -308,6 +239,6 @@ def process_new_user_message_v2(conversation_id):
 #        return llm_message
     except Exception as e:
         traceback_str = traceback.format_exc()
-        task_id = process_new_user_message_v2.request.id
+        task_id = process_new_user_message.request.id
         handle_failed_task.apply_async(args=(conversation_id, task_id, traceback_str))
         raise
