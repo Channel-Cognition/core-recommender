@@ -225,10 +225,10 @@ def process_new_user_message(conversation_id):
         # When the frontend polls the backend, it sends the index of the most recent
         # action it has stored in its local cache. We need to maintain the flexibility
         # to tell the frontend there was a mistake and it needs to "backup" and replace
-        # previous actions with new ones. This is different from replace item action.
-        # We want this in case the, say, the streaming fails and we have to call the
-        # LLM again, which implies we need to text. Alternatively, and equivalently,
-        # we could define a replace action for all the things we can set.
+        # previous actions with new ones. This is different from the replace item action.
+        # We want this in case, say, the streaming fails and we have to call the
+        # LLM again, which implies we need to remplace the text we have already streamed. Alternatively,
+        # and equivalently, we could define a replace action for all the things we can set.
  
         end = time.time()
         print("-------RESULT TIME----------")
@@ -236,7 +236,6 @@ def process_new_user_message(conversation_id):
         print("---------------LLM_MESSAGE---------------")
         print(llm_message)
 
-        # TODO (Max): 
         llm_dict = json.loads(llm_message)
         callback = list_result_rag_matcher.s(convo_id=str(conversation_id), text=llm_dict['text'])
         header = [task_rag_matcher_v2.s(item) for item in llm_dict['new_items'] if item]
